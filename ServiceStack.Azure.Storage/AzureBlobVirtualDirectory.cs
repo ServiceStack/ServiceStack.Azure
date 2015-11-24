@@ -60,12 +60,9 @@ namespace ServiceStack.Azure.Storage
         {
             var ret = pathProvider.Container.ListBlobs(this.DirPath, false)
                 .Where(q => q.GetType() == typeof(CloudBlobDirectory))
-                //.Where(q => ((CloudBlobDirectory)q).Prefix == this.DirPath)
                 .Any();
             return ret;
-            //var blob = pathProvider.Container.GetBlobReference(this.DirPath);
-            //var ret = blob.GetType() == typeof(CloudBlobDirectory);
-            //return ret;
+
         }
 
         public override string Name
@@ -87,17 +84,31 @@ namespace ServiceStack.Azure.Storage
         {
             fileName = pathProvider.CombineVirtualPath(this.DirPath, pathProvider.SanitizePath(fileName));
             return pathProvider.GetFile(fileName);
-            //return GetFile(fileName);
         }
 
         protected override IEnumerable<IVirtualFile> GetMatchingFilesInDir(string globPattern)
         {
-            throw new NotImplementedException();
+            var dir = (this.DirPath == null) ? null : this.DirPath + pathProvider.RealPathSeparator;
+
+            var ret = pathProvider.Container.ListBlobs(dir)
+                      .Where(q => q.GetType() == typeof(CloudBlockBlob))
+                      .Where(q =>
+                      {
+                          var x = ((CloudBlockBlob)q).Name.Glob(globPattern);
+                          return x;
+                      })
+                      .Select(q =>
+                      {
+                          return new AzureBlobVirtualFile(pathProvider, this).Init(q as CloudBlockBlob);
+                      });
+            return ret;
         }
 
         protected override IVirtualDirectory GetDirectoryFromBackingDirectoryOrDefault(string directoryName)
         {
             return new AzureBlobVirtualDirectory(this.pathProvider, pathProvider.SanitizePath(DirPath.CombineWith(directoryName)));
         }
+
+
     }
 }

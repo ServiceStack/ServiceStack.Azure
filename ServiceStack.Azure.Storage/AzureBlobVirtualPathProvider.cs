@@ -90,7 +90,7 @@ namespace ServiceStack.Azure.Storage
             dirPath = SanitizePath(dirPath);
             // Delete based on a wildcard search of the directory
             if (!dirPath.EndsWith("/")) dirPath += "/";
-            dirPath += "*";
+            //dirPath += "*";
             foreach (var blob in Container.ListBlobs(dirPath, true))
             {
                 Container.GetBlockBlobReference(((CloudBlockBlob)blob).Name).DeleteIfExists();
