@@ -4,11 +4,8 @@
 # User-specific files
 *.suo
 *.user
-*.userosscache
 *.sln.docstates
-
-# User-specific files (MonoDevelop/Xamarin Studio)
-*.userprefs
+.vs/
 
 # Build results
 [Dd]ebug/
@@ -22,14 +19,14 @@ bld/
 [Bb]in/
 [Oo]bj/
 
-# Visual Studio 2015 cache/options directory
-.vs/
+# Roslyn cache directories
+*.ide/
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
 
-# NUNIT
+#NUNIT
 *.VisualState.xml
 TestResult.xml
 
@@ -37,10 +34,6 @@ TestResult.xml
 [Dd]ebugPS/
 [Rr]eleasePS/
 dlldata.c
-
-# DNX
-project.lock.json
-artifacts/
 
 *_i.c
 *_p.c
@@ -94,7 +87,7 @@ _ReSharper*/
 *.[Rr]e[Ss]harper
 *.DotSettings.user
 
-# JustCode is a .NET coding add-in
+# JustCode is a .NET coding addin-in
 .JustCode
 
 # TeamCity is a build add-in
@@ -133,11 +126,9 @@ publish/
 # Publish Web Output
 *.[Pp]ublish.xml
 *.azurePubxml
-## TODO: Comment the next line if you want to checkin your
-## web deploy settings but do note that will include unencrypted
-## passwords
-#*.pubxml
-
+# TODO: Comment the next line if you want to checkin your web deploy settings 
+# but database connection strings (with potential passwords) will be unencrypted
+*.pubxml
 *.publishproj
 
 # NuGet Packages
@@ -146,7 +137,7 @@ publish/
 **/packages/*
 # except build/, which is used as an MSBuild target.
 !**/packages/build/
-# Uncomment if necessary however generally it will be regenerated when needed
+# If using the old MSBuild-Integrated Package Restore, uncomment this:
 #!**/packages/repositories.config
 
 # Windows Azure Build Output
@@ -156,13 +147,9 @@ csx/
 # Windows Store app package directory
 AppPackages/
 
-# Visual Studio cache files
-# files ending in .cache can be ignored
-*.[Cc]ache
-# but keep track of directories ending in .cache
-!*.[Cc]ache/
-
 # Others
+sql/
+*.Cache
 ClientBin/
 [Ss]tyle[Cc]op.*
 ~$*
@@ -172,7 +159,6 @@ ClientBin/
 *.pfx
 *.publishsettings
 node_modules/
-orleans.codegen.cs
 
 # RIA/Silverlight projects
 Generated_Code/
@@ -197,16 +183,13 @@ UpgradeLog*.htm
 # Microsoft Fakes
 FakesAssemblies/
 
-# Node.js Tools for Visual Studio
-.ntvs_analysis.dat
-
-# Visual Studio 6 build log
-*.plg
-
-# Visual Studio 6 workspace options file
-*.opt
-
-# LightSwitch generated files
-GeneratedArtifacts/
-_Pvt_Extensions/
-ModelManifest.xml
+#Javascript Bower and NPM depedencies
+npm_components/
+wwwroot/
+bower_components/
+App_Data/
+src/TechStacks/TechStacks/webdeploy.zip
+.idea/
+*.txt
+src/ServiceStack.Aws.v2.ncrunchproject
+*.ncrunchsolution
