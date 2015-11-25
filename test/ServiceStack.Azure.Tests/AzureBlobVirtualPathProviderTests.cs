@@ -37,6 +37,22 @@ namespace ServiceStack.Azure.Tests
             storageAccount.CreateCloudBlobClient().GetContainerReference(ContainerName).DeleteIfExists();
         }
 
+        [Test]
+        public void Can_have_many_items()
+        {
+            var pathProvider = GetPathProvider();
+
+            int count = 200;
+            count.Times(i =>
+            {
+                var filePath = "file-{0}.txt".Fmt(i);
+                pathProvider.WriteFile(filePath, "data");
+            });
+
+            Assert.That(pathProvider.RootDirectory.Files.Count, Is.EqualTo(count));
+
+        }
+
     }
 
 
