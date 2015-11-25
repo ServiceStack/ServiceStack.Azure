@@ -121,9 +121,14 @@
     <Compile Include="AzureBlobVirtualPathProviderTests.cs" />
     <Compile Include="AzureTableCacheClientTests.cs" />
     <Compile Include="CacheClientTestsBase.cs" />
+    <Compile Include="MqServerAppHostTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\ServiceStack.Azure.Messaging\ServiceStack.Azure.Messaging.csproj">
+      <Project>{eb41d580-f1da-4fef-a3c7-9be53238821e}</Project>
+      <Name>ServiceStack.Azure.Messaging</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\ServiceStack.Azure.Storage\ServiceStack.Azure.Storage.csproj">
       <Project>{1aaaa13e-bd77-4fe1-91ad-a77811f6cf51}</Project>
       <Name>ServiceStack.Azure.Storage</Name>
