@@ -2,10 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
-using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using ServiceStack.VirtualPath;
 
@@ -13,22 +10,13 @@ namespace ServiceStack.Azure.Storage
 {
     public class AzureBlobVirtualPathProvider : AbstractVirtualPathProviderBase, IVirtualFiles
     {
-
-
-
-        public CloudStorageAccount StorageAccount { get; private set; }
         public CloudBlobContainer Container { get; private set; }
-
-        CloudBlobClient client = null;
 
         private readonly AzureBlobVirtualDirectory rootDirectory;
 
         public override IVirtualDirectory RootDirectory
         {
-            get
-            {
-                return rootDirectory;
-            }
+            get { return rootDirectory; }
         }
 
         public override string VirtualPathSeparator
@@ -41,15 +29,11 @@ namespace ServiceStack.Azure.Storage
             get { return "/"; }
         }
 
-
-        public AzureBlobVirtualPathProvider(CloudStorageAccount storageAccount, string containerName, IAppHost appHost)
+        public AzureBlobVirtualPathProvider(IAppHost appHost, CloudBlobContainer container)
             : base(appHost)
         {
-            this.StorageAccount = storageAccount;
-            this.client = storageAccount.CreateCloudBlobClient();
-            this.Container = client.GetContainerReference(containerName);
+            this.Container = container;
             this.Container.CreateIfNotExists();
-
             this.rootDirectory = new AzureBlobVirtualDirectory(this, null);
         }
 
@@ -59,13 +43,13 @@ namespace ServiceStack.Azure.Storage
 
         public void WriteFile(string filePath, string textContents)
         {
-            CloudBlockBlob blob = Container.GetBlockBlobReference(SanitizePath(filePath));
+            var blob = Container.GetBlockBlobReference(SanitizePath(filePath));
             blob.UploadText(textContents);
         }
 
         public void WriteFile(string filePath, Stream stream)
         {
-            CloudBlockBlob blob = Container.GetBlockBlobReference(SanitizePath(filePath));
+            var blob = Container.GetBlockBlobReference(SanitizePath(filePath));
             blob.UploadFromStream(stream);
         }
 
@@ -76,7 +60,7 @@ namespace ServiceStack.Azure.Storage
 
         public void DeleteFile(string filePath)
         {
-            CloudBlockBlob blob = Container.GetBlockBlobReference(SanitizePath(filePath));
+            var blob = Container.GetBlockBlobReference(SanitizePath(filePath));
             blob.Delete();
         }
 

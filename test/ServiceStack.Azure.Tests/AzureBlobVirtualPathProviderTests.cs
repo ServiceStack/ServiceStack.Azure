@@ -18,11 +18,13 @@ namespace ServiceStack.Azure.Tests
     {
         public const string ContainerName = "ss-ci-test";
 
-        private CloudStorageAccount storageAccount = CloudStorageAccount.DevelopmentStorageAccount;
+        private readonly CloudStorageAccount storageAccount = CloudStorageAccount.DevelopmentStorageAccount;
 
         public override IVirtualPathProvider GetPathProvider()
         {
-            return new AzureBlobVirtualPathProvider(storageAccount, ContainerName, appHost);
+            var client = storageAccount.CreateCloudBlobClient();
+            var container = client.GetContainerReference(ContainerName);
+            return new AzureBlobVirtualPathProvider(appHost, container);
         }
 
         [SetUp]
