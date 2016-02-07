@@ -58,9 +58,9 @@ namespace ServiceStack.Azure.Storage
         // Azure Blob storage directories only exist if there are contents beneath them
         public bool Exists()
         {
-            var ret = pathProvider.Container.ListBlobs(this.DirPath, false)
-                .Where(q => q.GetType() == typeof(CloudBlobDirectory))
-                .Any();
+            var ret = pathProvider.Container
+                .ListBlobs(this.DirPath, false)
+                .Any(q => q is CloudBlobDirectory);
             return ret;
 
         }
@@ -91,16 +91,13 @@ namespace ServiceStack.Azure.Storage
             var dir = (this.DirPath == null) ? null : this.DirPath + pathProvider.RealPathSeparator;
 
             var ret = pathProvider.Container.ListBlobs(dir)
-                      .Where(q => q.GetType() == typeof(CloudBlockBlob))
+                      .Where(q => q is CloudBlockBlob)
                       .Where(q =>
                       {
                           var x = ((CloudBlockBlob)q).Name.Glob(globPattern);
                           return x;
                       })
-                      .Select(q =>
-                      {
-                          return new AzureBlobVirtualFile(pathProvider, this).Init(q as CloudBlockBlob);
-                      });
+                      .Select(q => new AzureBlobVirtualFile(pathProvider, this).Init(q as CloudBlockBlob));
             return ret;
         }
 
