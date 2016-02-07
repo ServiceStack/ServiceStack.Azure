@@ -42,12 +42,15 @@ namespace ServiceStack.Azure.Storage
         }
 
 
-        public AzureBlobVirtualPathProvider(CloudStorageAccount storageAccount, string containerName, IAppHost appHost)
+        public AzureBlobVirtualPathProvider(CloudStorageAccount storageAccount, string containerName, IAppHost appHost, 
+            Action<CloudStorageAccount, CloudBlobClient, CloudBlobContainer> beforeCreate = null)
             : base(appHost)
         {
             this.StorageAccount = storageAccount;
             this.client = storageAccount.CreateCloudBlobClient();
             this.Container = client.GetContainerReference(containerName);
+            if (beforeCreate != null)
+                beforeCreate(storageAccount, client, Container);
             this.Container.CreateIfNotExists();
 
             this.rootDirectory = new AzureBlobVirtualDirectory(this, null);
