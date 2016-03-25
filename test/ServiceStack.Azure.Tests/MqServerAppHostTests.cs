@@ -9,37 +9,41 @@ using ServiceStack.Redis;
 using ServiceStack.Text;
 using ServiceStack.Validation;
 using ServiceStack.Azure.Messaging;
+using Microsoft.ServiceBus;
 
 namespace ServiceStack.Common.Tests.Messaging
 {
     [TestFixture]
     public class AzureServiceBusMqServerAppHostTests : MqServerAppHostTests
     {
+        static string connectionString = "Endpoint=sb://obrcservicestacktest.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SgR1O9mldMad43H2eBL97SO2/CikTPGRFZjxTxIOUG8=";
+
         public AzureServiceBusMqServerAppHostTests()
         {
-
-            //using (var redis = ((AzureServiceBusMqServer)CreateMqServer()).ClientsManager.GetClient())
-            //    redis.FlushAll();
+            //NamespaceManager nm = NamespaceManager.CreateFromConnectionString(connectionString);
+            //foreach (var qd in nm.GetQueues())
+            //{
+            //    nm.DeleteQueue(qd.Path);
+            //}
         }
 
         public override IMessageService CreateMqServer(int retryCount = 1)
         {
-            
-            string connectionString = "Endpoint:=sb://obrcservicestacktest;SharedAccessKeyName=RootManageSharedAccessKey;SharedSecretValue=SgR1O9mldMad43H2eBL97SO2/CikTPGRFZjxTxIOUG8=;";
+
             return new ServiceBusMqServer(connectionString) { };
         }
-        
+
     }
 
 
-    [TestFixture]
-    public class MemoryMqServerAppHostTests : MqServerAppHostTests
-    {
-        public override IMessageService CreateMqServer(int retryCount = 1)
-        {
-            return new InMemoryTransientMessageService { RetryCount = retryCount };
-        }
-    }
+    //[TestFixture]
+    //public class MemoryMqServerAppHostTests : MqServerAppHostTests
+    //{
+    //    public override IMessageService CreateMqServer(int retryCount = 1)
+    //    {
+    //        return new InMemoryTransientMessageService { RetryCount = retryCount };
+    //    }
+    //}
 
 
     public class AnyTestMq

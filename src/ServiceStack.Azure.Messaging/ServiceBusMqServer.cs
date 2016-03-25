@@ -11,22 +11,40 @@ namespace ServiceStack.Azure.Messaging
     {
         private readonly string connectionString;
 
+
         public ServiceBusMqServer(string connectionString)
         {
             this.connectionString = connectionString;
+            this.MessageFactory = new ServiceBusMqMessageFactory(connectionString);
+
         }
 
 
         public IMessageFactory MessageFactory { get; private set; }
 
-        private readonly Dictionary<Type, IMessageHandlerFactory> handlerMap
-            = new Dictionary<Type, IMessageHandlerFactory>();
+        public Func<string, IOneWayClient> ReplyClientFactory { get; set; }
 
-        private readonly Dictionary<Type, int> handlerThreadCountMap
-            = new Dictionary<Type, int>();
+        /// <summary>
+        /// Execute global transformation or custom logic before a request is processed.
+        /// Must be thread-safe.
+        /// </summary>
+        public Func<IMessage, IMessage> RequestFilter { get; set; }
 
-        private ServiceBusMqWorker[] workers;
-        private Dictionary<string, int[]> queueWorkerIndexMap;
+        /// <summary>
+        /// Execute global transformation or custom logic on the response.
+        /// Must be thread-safe.
+        /// </summary>
+        public Func<object, object> ResponseFilter { get; set; }
+
+        private readonly Dictionary<Type, IMessageHandlerFactory> handlerMap = new Dictionary<Type, IMessageHandlerFactory>();
+
+        protected internal Dictionary<Type, IMessageHandlerFactory> HandlerMap
+        {
+            get { return handlerMap; }
+        }
+
+        //private readonly Dictionary<Type, int> handlerThreadCountMap
+        //    = new Dictionary<Type, int>();
 
 
         public List<Type> RegisteredTypes { get { return handlerMap.Keys.ToList(); } }
@@ -34,7 +52,8 @@ namespace ServiceStack.Azure.Messaging
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            (this.MessageFactory as ServiceBusMqMessageFactory).StopQueues();
+            //throw new NotImplementedException();
         }
 
         public IMessageHandlerStats GetStats()
@@ -54,17 +73,47 @@ namespace ServiceStack.Azure.Messaging
 
         public void RegisterHandler<T>(Func<IMessage<T>, object> processMessageFn)
         {
-            throw new NotImplementedException();
+            RegisterHandler(processMessageFn, null, noOfThreads: 1);
+        }
+
+
+        public void RegisterHandler<T>(Func<IMessage<T>, object> processMessageFn, int noOfThreads)
+        {
+            RegisterHandler(processMessageFn, null, noOfThreads);
         }
 
         public void RegisterHandler<T>(Func<IMessage<T>, object> processMessageFn, Action<IMessageHandler, IMessage<T>, Exception> processExceptionEx)
         {
-            throw new NotImplementedException();
+            RegisterHandler(processMessageFn, processExceptionEx, noOfThreads: 1);
         }
+
+        public void RegisterHandler<T>(Func<IMessage<T>, object> processMessageFn, Action<IMessageHandler, IMessage<T>, Exception> processExceptionEx, int noOfThreads)
+        {
+            if (handlerMap.ContainsKey(typeof(T)))
+            {
+                throw new ArgumentException("Message handler has already been registered for type: " + typeof(T).Name);
+            }
+
+            handlerMap[typeof(T)] = CreateMessageHandlerFactory(processMessageFn, processExceptionEx);
+            //handlerThreadCountMap[typeof(T)] = noOfThreads;
+
+            LicenseUtils.AssertValidUsage(LicenseFeature.ServiceStack, QuotaType.Operations, handlerMap.Count);
+        }
+
+        protected IMessageHandlerFactory CreateMessageHandlerFactory<T>(Func<IMessage<T>, object> processMessageFn, Action<IMessageHandler, IMessage<T>, Exception> processExceptionEx)
+        {
+            return new MessageHandlerFactory<T>(this, processMessageFn, processExceptionEx)
+            {
+                RequestFilter = this.RequestFilter,
+                ResponseFilter = this.ResponseFilter,
+            };
+        }
+
 
         public void Start()
         {
-            throw new NotImplementedException();
+            // Create the queues (if they don't exist) and start the listeners
+            ((ServiceBusMqMessageFactory)this.MessageFactory).StartQueues(this.handlerMap);
         }
 
         public void Stop()
