@@ -34,6 +34,7 @@ namespace ServiceStack.Azure.Messaging
 
         public void Publish<T>(T messageBody)
         {
+            // Ensure we're publishing an IMessage
             var message = messageBody as IMessage;
             if (message != null)
             {
@@ -90,7 +91,7 @@ namespace ServiceStack.Azure.Messaging
         //}
     }
 
-    public class ServiceBusMqClient : ServiceBusMqMessageProducer, IMessageQueueClient
+    public class ServiceBusMqClient : ServiceBusMqMessageProducer, IMessageQueueClient, IOneWayClient
     {
 
         protected internal ServiceBusMqClient(ServiceBusMqMessageFactory parentFactory)
@@ -101,15 +102,24 @@ namespace ServiceStack.Azure.Messaging
 
         public void Ack(IMessage message)
         {
-            throw new NotImplementedException();
+            //var queueName = message.Tag;
+            //var sbClient = GetOrCreateClient(queueName);
+            //sbClient.Complete(message.Id);
         }
 
         public IMessage<T> CreateMessage<T>(object mqResponse)
         {
-            BrokeredMessage msg = mqResponse as BrokeredMessage;
-            IMessage<T> message = msg.GetBody<IMessage<T>>();
-            //message.Id = Guid.Parse(msg.MessageId);
-            throw new NotImplementedException();
+            if (mqResponse is IMessage)
+                return (IMessage<T>)mqResponse;
+            else
+            {
+                var msg = mqResponse as BrokeredMessage;
+                if (msg == null) return null;
+                var msgBody = msg.GetBody<string>();
+
+                IMessage iMessage = (IMessage)JsonSerializer.DeserializeFromString(msgBody, typeof(IMessage));
+                return (IMessage<T>)iMessage;
+            }
         }
 
         public override void Dispose()
@@ -146,7 +156,12 @@ namespace ServiceStack.Azure.Messaging
 
         public void Nak(IMessage message, bool requeue, Exception exception = null)
         {
-            throw new NotImplementedException();
+            // If don't requeue, post message to DLQ
+            var queueName = requeue
+                 ? message.ToInQueueName()
+                 : message.ToDlqQueueName();
+
+            Publish(queueName, message);
         }
 
         public void Notify(string queueName, IMessage message)
@@ -154,10 +169,23 @@ namespace ServiceStack.Azure.Messaging
             throw new NotImplementedException();
         }
 
-        //public void Publish(string queueName, IMessage message)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        public void SendAllOneWay(IEnumerable<object> requests)
+        {
+            if (requests == null) return;
+            foreach (var request in requests)
+            {
+                SendOneWay(request);
+            }
+        }
 
+        public void SendOneWay(object requestDto)
+        {
+            Publish(MessageFactory.Create(requestDto));
+        }
+
+        public void SendOneWay(string relativeOrAbsoluteUri, object requestDto)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

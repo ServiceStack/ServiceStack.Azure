@@ -15,7 +15,7 @@ namespace ServiceStack.Azure.Messaging
         protected internal readonly string address;
         protected internal readonly NamespaceManager namespaceManager;
 
-        Dictionary<Type, IMessageHandlerFactory> handlerMap;
+        internal Dictionary<Type, IMessageHandlerFactory> handlerMap;
         Dictionary<string, Type> queueMap;
 
         // A list of all Service Bus QueueClients - one per type & queue (priorityq, inq, outq, and dlq)
@@ -40,11 +40,7 @@ namespace ServiceStack.Azure.Messaging
 
         public void Dispose()
         {
-            //throw new NotImplementedException();
-            //sbClients.Each(kvp =>
-            //{
-            //    kvp.Value.Close();
-            //});
+
         }
 
         protected internal void StartQueues(Dictionary<Type, IMessageHandlerFactory> handlerMap)
@@ -69,31 +65,22 @@ namespace ServiceStack.Azure.Messaging
                         namespaceManager.CreateQueue(qd);
 
                     var sbClient = QueueClient.CreateFromConnectionString(address, qd.Path);
-                    sbClient.OnMessage(this.HandleMessage);
+                    var sbWorker = new ServiceBusMqWorker(this, this.CreateMessageQueueClient(), queueName);
+
+                    OnMessageOptions options = new OnMessageOptions
+                    {
+                        AutoComplete = true,
+                        //AutoRenewTimeout = new TimeSpan()
+                    };
+                    sbClient.OnMessage(sbWorker.HandleMessage, options);
+
                     sbClients.Add(qd.Path, sbClient);
                 }
 
             }
         }
 
-        void HandleMessage(BrokeredMessage msg)
-        {
-            try
-            {
-                string strMessage = msg.GetBody<string>();
-                IMessage iMessage = (IMessage)JsonSerializer.DeserializeFromString(strMessage, typeof(IMessage));
-                Type msgType = iMessage.GetType().GetGenericArguments()[0];
-                var messageHandlerFactory = handlerMap[msgType];
-                var messageHandler = messageHandlerFactory.CreateMessageHandler();
-                //messageHandler.ProcessQueue();
-                Console.WriteLine("OnMessage: " + msg.GetBody<string>());
-            }
-            catch (Exception ex)
-            {
 
-                throw;
-            }
-        }
 
         protected internal void StopQueues()
         {

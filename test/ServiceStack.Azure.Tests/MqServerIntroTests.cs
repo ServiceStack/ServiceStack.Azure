@@ -10,6 +10,8 @@ using ServiceStack.Testing;
 using ServiceStack.Text;
 using ServiceStack.Azure.Messaging;
 using Microsoft.ServiceBus;
+using System.Threading.Tasks;
+using Microsoft.ServiceBus.Messaging;
 
 namespace ServiceStack.Server.Tests.Messaging
 {
@@ -19,11 +21,15 @@ namespace ServiceStack.Server.Tests.Messaging
 
         public AzureServiceBusMqServerIntroTests()
         {
-            //NamespaceManager nm = NamespaceManager.CreateFromConnectionString(connectionString);
-            //foreach (var qd in nm.GetQueues())
-            //{
-            //    nm.DeleteQueue(qd.Path);
-            //}
+            NamespaceManager nm = NamespaceManager.CreateFromConnectionString(connectionString);
+            Parallel.ForEach(nm.GetQueues(), qd =>
+            {
+                var sbClient = QueueClient.CreateFromConnectionString(connectionString, qd.Path, ReceiveMode.ReceiveAndDelete);
+                BrokeredMessage msg = null;
+                while ((msg = sbClient.Receive(new TimeSpan(0, 0, 1))) != null)
+                {
+                }
+            });
         }
 
         public override IMessageService CreateMqServer(int retryCount = 1)

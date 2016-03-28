@@ -10,6 +10,7 @@ using ServiceStack.Text;
 using ServiceStack.Validation;
 using ServiceStack.Azure.Messaging;
 using Microsoft.ServiceBus;
+using Microsoft.ServiceBus.Messaging;
 
 namespace ServiceStack.Common.Tests.Messaging
 {
@@ -20,11 +21,15 @@ namespace ServiceStack.Common.Tests.Messaging
 
         public AzureServiceBusMqServerAppHostTests()
         {
-            //NamespaceManager nm = NamespaceManager.CreateFromConnectionString(connectionString);
-            //foreach (var qd in nm.GetQueues())
-            //{
-            //    nm.DeleteQueue(qd.Path);
-            //}
+            NamespaceManager nm = NamespaceManager.CreateFromConnectionString(connectionString);
+            Parallel.ForEach(nm.GetQueues(), qd =>
+            {
+                var sbClient = QueueClient.CreateFromConnectionString(connectionString, qd.Path, ReceiveMode.ReceiveAndDelete);
+                BrokeredMessage msg = null;
+                while ((msg = sbClient.Receive(new TimeSpan(0, 0, 1))) != null)
+                {
+                }
+            });
         }
 
         public override IMessageService CreateMqServer(int retryCount = 1)
@@ -34,16 +39,6 @@ namespace ServiceStack.Common.Tests.Messaging
         }
 
     }
-
-
-    //[TestFixture]
-    //public class MemoryMqServerAppHostTests : MqServerAppHostTests
-    //{
-    //    public override IMessageService CreateMqServer(int retryCount = 1)
-    //    {
-    //        return new InMemoryTransientMessageService { RetryCount = retryCount };
-    //    }
-    //}
 
 
     public class AnyTestMq
@@ -145,7 +140,10 @@ namespace ServiceStack.Common.Tests.Messaging
             container.Register(c => createMqServerFn());
 
             var mqServer = container.Resolve<IMessageService>();
-            mqServer.RegisterHandler<AnyTestMq>(ServiceController.ExecuteMessage);
+            mqServer.RegisterHandler<AnyTestMq>(q =>
+            {
+                return ServiceController.ExecuteMessage(q);
+            });
             mqServer.RegisterHandler<AnyTestMqAsync>(msg
              => ServiceController.ExecuteMessage(msg));
             mqServer.RegisterHandler<PostTestMq>(ServiceController.ExecuteMessage);

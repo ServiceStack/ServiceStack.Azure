@@ -1,5 +1,7 @@
-﻿using ServiceStack.Logging;
+﻿using Microsoft.ServiceBus.Messaging;
+using ServiceStack.Logging;
 using ServiceStack.Messaging;
+using ServiceStack.Text;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,21 +10,40 @@ using System.Threading.Tasks;
 
 namespace ServiceStack.Azure.Messaging
 {
-    public class ServiceBusMqWorker
+    class ServiceBusMqWorker
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ServiceBusMqWorker));
 
-        private readonly string connectionString;
         private readonly string queueName;
-        private readonly IMessageHandler messageHandler;
+        private readonly IMessageQueueClient mqClient;
+        private readonly ServiceBusMqMessageFactory mqMessageFactory;
 
-        private IMessageQueueClient mqClient;
-
-        public ServiceBusMqWorker(string connectionString, string queueName, IMessageHandler messageHandler)
+        public ServiceBusMqWorker(ServiceBusMqMessageFactory mqMessageFactory, IMessageQueueClient mqClient, string queueName)
         {
-            
+            this.mqMessageFactory = mqMessageFactory;
+            this.queueName = queueName;
+            this.mqClient = mqClient;
         }
 
+
+        public void HandleMessage(BrokeredMessage msg)
+        {
+            try
+            {
+                string strMessage = msg.GetBody<string>();
+                IMessage iMessage = (IMessage)JsonSerializer.DeserializeFromString(strMessage, typeof(IMessage));
+                Type msgType = iMessage.GetType().GetGenericArguments()[0];
+                var messageHandlerFactory = mqMessageFactory.handlerMap[msgType];
+                var messageHandler = messageHandlerFactory.CreateMessageHandler();
+
+                messageHandler.ProcessMessage(mqClient, iMessage);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
 
     }
 }
