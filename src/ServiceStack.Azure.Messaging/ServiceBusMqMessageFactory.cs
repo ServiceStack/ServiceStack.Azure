@@ -64,23 +64,24 @@ namespace ServiceStack.Azure.Messaging
                     if (!namespaceManager.QueueExists(queueName))
                         namespaceManager.CreateQueue(qd);
 
-                    var sbClient = QueueClient.CreateFromConnectionString(address, qd.Path);
+                    var sbClient = QueueClient.CreateFromConnectionString(address, qd.Path, ReceiveMode.PeekLock);
                     var sbWorker = new ServiceBusMqWorker(this, this.CreateMessageQueueClient(), queueName);
 
                     OnMessageOptions options = new OnMessageOptions
                     {
-                        AutoComplete = true,
+                        // Cannot use AutoComplete because our HandleMessage throws errors into SS's handlers; this would 
+                        // normally release the BrokeredMessage back to the Azure Service Bus queue, which we don't actually want
+
+                        //AutoComplete = true,          
                         //AutoRenewTimeout = new TimeSpan()
+                        MaxConcurrentCalls = 1
                     };
                     sbClient.OnMessage(sbWorker.HandleMessage, options);
-
                     sbClients.Add(qd.Path, sbClient);
                 }
 
             }
         }
-
-
 
         protected internal void StopQueues()
         {
@@ -89,23 +90,6 @@ namespace ServiceStack.Azure.Messaging
                 kvp.Value.Close();
             });
         }
-
-        protected internal void PublishToQueue<T>(IMessage<T> message)
-        {
-            // determine correct queue from message type
-            string queueName = typeof(T).Name + ".inq";
-            QueueClient sbClient = null;
-            if (!sbClients.TryGetValue(queueName, out sbClient))
-            {
-
-            }
-            else
-            {
-
-            }
-
-        }
-
 
     }
 }

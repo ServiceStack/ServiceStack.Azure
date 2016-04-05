@@ -11,6 +11,21 @@ namespace ServiceStack.Azure.Messaging
     {
         private readonly string connectionString;
 
+        private int retryCount = 1;
+        public int RetryCount
+        {
+            get
+            {
+                return retryCount;
+            }
+            set
+            {
+                if (value < 0) throw new ArgumentOutOfRangeException(nameof(retryCount));
+                retryCount = value;
+            }
+
+        }
+
 
         public ServiceBusMqServer(string connectionString)
         {
@@ -106,6 +121,7 @@ namespace ServiceStack.Azure.Messaging
             {
                 RequestFilter = this.RequestFilter,
                 ResponseFilter = this.ResponseFilter,
+                RetryCount = this.RetryCount
             };
         }
 

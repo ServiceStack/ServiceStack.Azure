@@ -60,8 +60,8 @@ namespace ServiceStack.Azure.Messaging
                 var msgBody = JsonSerializer.SerializeToString(message, typeof(IMessage));
                 BrokeredMessage msg = new BrokeredMessage(msgBody);
                 msg.MessageId = message.Id.ToString();
-                sbClient.Send(msg);
 
+                sbClient.Send(msg);
             }
         }
 
@@ -83,12 +83,6 @@ namespace ServiceStack.Azure.Messaging
             sbClients.Add(queueName, sbClient);
             return sbClient;
         }
-
-        //public static string ToInQueueName(IMessage message)
-        //{
-        //    string queueName = message.ToInQueueName();
-        //    return queueName.Substring(QueueNames.MqPrefix.Length);
-        //}
     }
 
     public class ServiceBusMqClient : ServiceBusMqMessageProducer, IMessageQueueClient, IOneWayClient
@@ -102,9 +96,7 @@ namespace ServiceStack.Azure.Messaging
 
         public void Ack(IMessage message)
         {
-            //var queueName = message.Tag;
-            //var sbClient = GetOrCreateClient(queueName);
-            //sbClient.Complete(message.Id);
+            // Message is automatically dequeued at Get<>
         }
 
         public IMessage<T> CreateMessage<T>(object mqResponse)
@@ -166,7 +158,7 @@ namespace ServiceStack.Azure.Messaging
 
         public void Notify(string queueName, IMessage message)
         {
-            throw new NotImplementedException();
+            Publish(queueName, message);
         }
 
         public void SendAllOneWay(IEnumerable<object> requests)

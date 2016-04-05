@@ -40,8 +40,12 @@ namespace ServiceStack.Azure.Messaging
             }
             catch (Exception)
             {
-
                 throw;
+            }
+            finally
+            {
+                msg.Complete(); // Release message from Azure service-bus; we received it, but internally weren't able to process it.  
+                                // Its the handler's fault, not the ServiceBus
             }
         }
 

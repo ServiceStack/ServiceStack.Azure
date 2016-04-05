@@ -82,7 +82,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ServiceBusMessageQueueClientFactory.cs" />
     <Compile Include="ServiceBusMqClient.cs" />
     <Compile Include="ServiceBusMqMessageFactory.cs" />
     <Compile Include="ServiceBusMqServer.cs" />

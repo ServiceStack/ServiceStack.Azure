@@ -11,20 +11,26 @@ using ServiceStack.Validation;
 using ServiceStack.Azure.Messaging;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
+using ServiceStack.Configuration;
 
 namespace ServiceStack.Common.Tests.Messaging
 {
     [TestFixture]
     public class AzureServiceBusMqServerAppHostTests : MqServerAppHostTests
     {
-        static string connectionString = "Endpoint=sb://obrcservicestacktest.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SgR1O9mldMad43H2eBL97SO2/CikTPGRFZjxTxIOUG8=";
-
+        static string ConnectionString
+        {
+            get
+            {
+                return new TextFileSettings("settings.config").Get("ConnectionString");
+            }
+        }
         public AzureServiceBusMqServerAppHostTests()
         {
-            NamespaceManager nm = NamespaceManager.CreateFromConnectionString(connectionString);
+            NamespaceManager nm = NamespaceManager.CreateFromConnectionString(ConnectionString);
             Parallel.ForEach(nm.GetQueues(), qd =>
             {
-                var sbClient = QueueClient.CreateFromConnectionString(connectionString, qd.Path, ReceiveMode.ReceiveAndDelete);
+                var sbClient = QueueClient.CreateFromConnectionString(ConnectionString, qd.Path, ReceiveMode.ReceiveAndDelete);
                 BrokeredMessage msg = null;
                 while ((msg = sbClient.Receive(new TimeSpan(0, 0, 1))) != null)
                 {
@@ -35,7 +41,7 @@ namespace ServiceStack.Common.Tests.Messaging
         public override IMessageService CreateMqServer(int retryCount = 1)
         {
 
-            return new ServiceBusMqServer(connectionString) { };
+            return new ServiceBusMqServer(ConnectionString) { RetryCount = retryCount };
         }
 
     }
