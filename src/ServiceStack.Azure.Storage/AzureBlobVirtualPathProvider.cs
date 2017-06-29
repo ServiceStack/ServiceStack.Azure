@@ -14,20 +14,11 @@ namespace ServiceStack.Azure.Storage
 
         private readonly AzureBlobVirtualDirectory rootDirectory;
 
-        public override IVirtualDirectory RootDirectory
-        {
-            get { return rootDirectory; }
-        }
+        public override IVirtualDirectory RootDirectory => rootDirectory;
 
-        public override string VirtualPathSeparator
-        {
-            get { return "/"; }
-        }
+        public override string VirtualPathSeparator => "/";
 
-        public override string RealPathSeparator
-        {
-            get { return "/"; }
-        }
+        public override string RealPathSeparator => "/";
 
         public AzureBlobVirtualPathProvider(IAppHost appHost, CloudBlobContainer container)
             : base(appHost)
@@ -56,6 +47,16 @@ namespace ServiceStack.Azure.Storage
         public void WriteFiles(IEnumerable<IVirtualFile> files, Func<IVirtualFile, string> toPath = null)
         {
             this.CopyFrom(files, toPath);
+        }
+
+        public void AppendFile(string filePath, string textContents)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AppendFile(string filePath, Stream stream)
+        {
+            throw new NotImplementedException();
         }
 
         public void DeleteFile(string filePath)
