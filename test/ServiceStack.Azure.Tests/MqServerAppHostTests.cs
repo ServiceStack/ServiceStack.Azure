@@ -1,28 +1,31 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using Funq;
-using NUnit.Framework;
-using ServiceStack.FluentValidation;
-using ServiceStack.Messaging;
-using ServiceStack.Messaging.Redis;
-using ServiceStack.Redis;
-using ServiceStack.Text;
-using ServiceStack.Validation;
-using ServiceStack.Azure.Messaging;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
+using NUnit.Framework;
+using ServiceStack.Azure.Messaging;
 using ServiceStack.Configuration;
+using ServiceStack.FluentValidation;
+using ServiceStack.Messaging;
+using ServiceStack.Validation;
 
-namespace ServiceStack.Common.Tests.Messaging
+namespace ServiceStack.Azure.Tests
 {
     [TestFixture]
     public class AzureServiceBusMqServerAppHostTests : MqServerAppHostTests
     {
-        static string ConnectionString
+        private static string ConnectionString
         {
             get
             {
-                return new TextFileSettings("settings.config").Get("ConnectionString");
+                var assembly = Assembly.GetExecutingAssembly();
+                var path = new Uri(assembly.CodeBase).LocalPath;
+                var configFile = Path.Combine(Path.GetDirectoryName(path), "settings.config");
+
+                return new TextFileSettings(configFile).Get("ConnectionString");
             }
         }
         public AzureServiceBusMqServerAppHostTests()
