@@ -1,11 +1,13 @@
-﻿using System;
+﻿#if !NETCORE_SUPPORT
+using System;
+using System.IO;
+using System.Reflection;
 using System.Threading;
 using Funq;
 using NUnit.Framework;
 using ServiceStack.Auth;
 using ServiceStack.Host;
 using ServiceStack.Messaging;
-using ServiceStack.Messaging.Redis;
 using ServiceStack.Testing;
 using ServiceStack.Text;
 using ServiceStack.Azure.Messaging;
@@ -14,7 +16,7 @@ using System.Threading.Tasks;
 using Microsoft.ServiceBus.Messaging;
 using ServiceStack.Configuration;
 
-namespace ServiceStack.Server.Tests.Messaging
+namespace ServiceStack.Azure.Tests.Messaging
 {
     public class AzureServiceBusMqServerIntroTests : MqServerIntroTests
     {
@@ -22,7 +24,11 @@ namespace ServiceStack.Server.Tests.Messaging
         {
             get
             {
-                return new TextFileSettings("settings.config").Get("ConnectionString");
+                var assembly = Assembly.GetExecutingAssembly();
+                var path = new Uri(assembly.CodeBase).LocalPath;
+                var configFile = Path.Combine(Path.GetDirectoryName(path), "settings.config");
+
+                return new TextFileSettings(configFile).Get("ConnectionString");
             }
         }
 
@@ -94,7 +100,7 @@ namespace ServiceStack.Server.Tests.Messaging
         private readonly Func<IMessageService> createMqServerFn;
 
         public AppHost(Func<IMessageService> createMqServerFn)
-            : base("Rabbit MQ Test Host", typeof(HelloService).Assembly)
+            : base("Rabbit MQ Test Host", typeof(HelloService).GetAssembly())
         {
             this.createMqServerFn = createMqServerFn;
         }
@@ -316,7 +322,7 @@ namespace ServiceStack.Server.Tests.Messaging
         [Test]
         public void Does_process_messages_in_BasicAppHost()
         {
-            using (var appHost = new BasicAppHost(typeof(HelloService).Assembly)
+            using (var appHost = new BasicAppHost(typeof(HelloService).GetAssembly())
             {
                 ConfigureAppHost = host =>
                 {
@@ -400,7 +406,7 @@ namespace ServiceStack.Server.Tests.Messaging
         public void Does_dispose_request_scope_dependency_in_PostMessageHandler()
         {
             var disposeCount = 0;
-            using (var appHost = new BasicAppHost(typeof(HelloWithDepService).Assembly)
+            using (var appHost = new BasicAppHost(typeof(HelloWithDepService).GetAssembly())
             {
                 ConfigureAppHost = host =>
                 {
@@ -441,3 +447,4 @@ namespace ServiceStack.Server.Tests.Messaging
         public static string SqlServerBuildDb = "Server=localhost;Database=test;User Id=test;Password=test;";
     }
 }
+#endif

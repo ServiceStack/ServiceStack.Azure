@@ -1,183 +1,85 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6DC5FB0E-DEE0-42BC-9FEE-23DCED1223E4}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ServiceStack.Azure.Tests</RootNamespace>
+    <TargetFrameworks>net45;netcoreapp1.1</TargetFrameworks>
+    <!--<TargetFrameworks>netcoreapp1.1</TargetFrameworks>-->
+    <DebugType>portable</DebugType>
     <AssemblyName>ServiceStack.Azure.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
-    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
-    <IsCodedUITest>False</IsCodedUITest>
-    <TestProjectType>UnitTest</TestProjectType>
-    <TargetFrameworkProfile />
+    <OutputType>Library</OutputType>
+    <PackageId>ServiceStack.Azure.Tests</PackageId>
+    <RuntimeFrameworkVersion>1.1.1</RuntimeFrameworkVersion>
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+    <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81+xamarinmac</PackageTargetFallback>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="Microsoft.Azure.KeyVault.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\src\packages\Microsoft.Azure.KeyVault.Core.2.0.4\lib\net45\Microsoft.Azure.KeyVault.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Data.Edm, Version=5.8.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\src\packages\Microsoft.Data.Edm.5.8.2\lib\net40\Microsoft.Data.Edm.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Data.OData, Version=5.8.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\src\packages\Microsoft.Data.OData.5.8.2\lib\net40\Microsoft.Data.OData.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Data.Services.Client, Version=5.8.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\src\packages\Microsoft.Data.Services.Client.5.8.2\lib\net40\Microsoft.Data.Services.Client.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.ServiceBus, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\src\packages\WindowsAzure.ServiceBus.4.1.2\lib\net45\Microsoft.ServiceBus.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.WindowsAzure.Configuration, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\src\packages\Microsoft.WindowsAzure.ConfigurationManager.3.2.3\lib\net40\Microsoft.WindowsAzure.Configuration.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.WindowsAzure.Storage, Version=8.1.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\src\packages\WindowsAzure.Storage.8.1.4\lib\net45\Microsoft.WindowsAzure.Storage.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\src\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="nunit.framework, Version=3.7.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
-      <HintPath>..\..\src\packages\NUnit.3.7.1\lib\net45\nunit.framework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ServiceStack, Version=4.5.12.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\src\packages\ServiceStack.4.5.12\lib\net45\ServiceStack.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ServiceStack.Client, Version=4.5.12.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\src\packages\ServiceStack.Client.4.5.12\lib\net45\ServiceStack.Client.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ServiceStack.Common, Version=4.5.12.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\src\packages\ServiceStack.Common.4.5.12\lib\net45\ServiceStack.Common.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ServiceStack.Interfaces, Version=4.0.0.0, Culture=neutral, PublicKeyToken=e06fbc6124f57c43, processorArchitecture=MSIL">
-      <HintPath>..\..\src\packages\ServiceStack.Interfaces.4.5.12\lib\portable-wp80+sl5+net45+win8+wpa81+monotouch+monoandroid+xamarin.ios10\ServiceStack.Interfaces.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ServiceStack.OrmLite, Version=4.5.12.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\src\packages\ServiceStack.OrmLite.4.5.12\lib\net45\ServiceStack.OrmLite.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ServiceStack.Redis, Version=4.5.12.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\src\packages\ServiceStack.Redis.4.5.12\lib\net45\ServiceStack.Redis.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ServiceStack.Server, Version=4.5.12.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\src\packages\ServiceStack.Server.4.5.12\lib\net45\ServiceStack.Server.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ServiceStack.Text, Version=4.5.12.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\src\packages\ServiceStack.Text.4.5.12\lib\net45\ServiceStack.Text.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
+    <PackageReference Include="Microsoft.Azure.KeyVault.Core" Version="2.0.4" />
+    <PackageReference Include="Microsoft.Data.Services.Client" Version="5.8.2" />
+    <PackageReference Include="WindowsAzure.Storage" Version="8.1.4" />
+    <PackageReference Include="NUnit" Version="3.6.1" />
+    <ProjectReference Include="..\..\src\ServiceStack.Azure\ServiceStack.Azure.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
+    <DefineConstants>$(DefineConstants);NET45</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+    <PackageReference Include="WindowsAzure.ServiceBus" Version="4.1.2" />
+    <PackageReference Include="Microsoft.WindowsAzure.ConfigurationManager" Version="3.2.3" />
+    <PackageReference Include="Microsoft.Data.Edm" Version="5.8.2" />
+    <PackageReference Include="Microsoft.Data.OData" Version="5.8.2" />
+
+
+    <Reference Include="System.Threading" />
+    <Reference Include="System.Threading.Tasks" />
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Spatial, Version=5.8.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\src\packages\System.Spatial.5.8.2\lib\net40\System.Spatial.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Xml" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Web" />
+    <Reference Include="Microsoft.CSharp" />
+
+    <Reference Include="..\..\lib\pcl\ServiceStack.Interfaces.dll" />
+    <Reference Include="..\..\lib\net45\ServiceStack.Text.dll" />
+    <Reference Include="..\..\lib\net45\ServiceStack.Common.dll" />
+    <Reference Include="..\..\lib\net45\ServiceStack.Client.dll" />
+    <Reference Include="..\..\lib\net45\ServiceStack.dll" />
   </ItemGroup>
-  <Choose>
-    <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
-      <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
-  <ItemGroup>
-    <Compile Include="AzureBlobVirtualPathProviderTests.cs" />
-    <Compile Include="AzureTableCacheClientTests.cs" />
-    <Compile Include="CacheClientTestsBase.cs" />
-    <Compile Include="MqServerAppHostTests.cs" />
-    <Compile Include="MqServerIntroTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
+    <DefineConstants>$(DefineConstants);NETCORE_SUPPORT;NETCORE</DefineConstants>
+  </PropertyGroup>
+
+  <!-- Enable NunitLite build, becase NUnit is not supported on .NET Core SDK 1.0.2 
+   https://github.com/nunit/dotnet-test-nunit/issues/91 
+   To enable NUnitLite pass /p:NUNITLITE=1 into msbuild arguments
+   -->
+  <PropertyGroup Condition=" '$(NUNITLITE)' != '' ">
+    <OutputType>Exe</OutputType>
+    <DefineConstants>$(DefineConstants);NUNITLITE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(NUNITLITE)' != '' ">
+    <PackageReference Include="NUnitLite" Version="3.6.1" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\ServiceStack.Azure.Messaging\ServiceStack.Azure.Messaging.csproj">
-      <Project>{eb41d580-f1da-4fef-a3c7-9be53238821e}</Project>
-      <Name>ServiceStack.Azure.Messaging</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\ServiceStack.Azure.Storage\ServiceStack.Azure.Storage.csproj">
-      <Project>{1aaaa13e-bd77-4fe1-91ad-a77811f6cf51}</Project>
-      <Name>ServiceStack.Azure.Storage</Name>
-    </ProjectReference>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
+    <PackageReference Include="System.Data.Common" Version="4.3.0" />
+
+    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="0.0.6-preview" />
+
+    <PackageReference Include="ServiceStack.Interfaces.Core" Version="1.0.*" />
+    <PackageReference Include="ServiceStack.Text.Core" Version="1.0.*" />
+    <PackageReference Include="ServiceStack.Common.Core" Version="1.0.*" />
+    <PackageReference Include="ServiceStack.Client.Core" Version="1.0.*" />
+    <PackageReference Include="ServiceStack.Core" Version="1.0.*" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="settings.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <Choose>
-    <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
-      <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.CodedUITestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.TestTools.UITest.Common, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.TestTools.UITest.Extension, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.TestTools.UITesting, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <Private>False</Private>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>

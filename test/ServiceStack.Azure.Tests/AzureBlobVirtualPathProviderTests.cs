@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !NETCORE
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -24,7 +25,7 @@ namespace ServiceStack.Azure.Tests
         {
             var client = storageAccount.CreateCloudBlobClient();
             var container = client.GetContainerReference(ContainerName);
-            return new AzureBlobVirtualPathProvider(appHost, container);
+            return new AzureBlobVirtualPathProvider(container);
         }
 
         [SetUp]
@@ -63,7 +64,7 @@ namespace ServiceStack.Azure.Tests
     {
         public override IVirtualPathProvider GetPathProvider()
         {
-            return new InMemoryVirtualPathProvider(appHost);
+            return new MemoryVirtualFiles();
         }
     }
 
@@ -81,7 +82,7 @@ namespace ServiceStack.Azure.Tests
 
         public override IVirtualPathProvider GetPathProvider()
         {
-            return new FileSystemVirtualPathProvider(appHost, RootDir);
+            return new FileSystemVirtualFiles(RootDir);
         }
     }
 
@@ -334,3 +335,4 @@ namespace ServiceStack.Azure.Tests
         }
     }
 }
+#endif

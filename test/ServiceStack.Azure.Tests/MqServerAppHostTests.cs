@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !NETCORE_SUPPORT
+using System;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ using ServiceStack.FluentValidation;
 using ServiceStack.Messaging;
 using ServiceStack.Validation;
 
-namespace ServiceStack.Azure.Tests
+namespace ServiceStack.Azure.Tests.Messaging
 {
     [TestFixture]
     public class AzureServiceBusMqServerAppHostTests : MqServerAppHostTests
@@ -144,7 +145,7 @@ namespace ServiceStack.Azure.Tests
         public override void Configure(Container container)
         {
             Plugins.Add(new ValidationFeature());
-            container.RegisterValidators(typeof(ValidateTestMqValidator).Assembly);
+            container.RegisterValidators(typeof(ValidateTestMqValidator).GetAssembly());
 
             container.Register(c => createMqServerFn());
 
@@ -384,3 +385,4 @@ namespace ServiceStack.Azure.Tests
         }
     }
 }
+#endif
