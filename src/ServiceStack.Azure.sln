@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26403.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Azure.Storage", "ServiceStack.Azure.Storage\ServiceStack.Azure.Storage.csproj", "{1AAAA13E-BD77-4FE1-91AD-A77811F6CF51}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Azure.Tests", "..\test\ServiceStack.Azure.Tests\ServiceStack.Azure.Tests.csproj", "{6DC5FB0E-DEE0-42BC-9FEE-23DCED1223E4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3C21FC51-813A-45BE-ABB1-C352C8B35AA0}"
@@ -20,10 +18,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1AAAA13E-BD77-4FE1-91AD-A77811F6CF51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1AAAA13E-BD77-4FE1-91AD-A77811F6CF51}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1AAAA13E-BD77-4FE1-91AD-A77811F6CF51}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1AAAA13E-BD77-4FE1-91AD-A77811F6CF51}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6DC5FB0E-DEE0-42BC-9FEE-23DCED1223E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6DC5FB0E-DEE0-42BC-9FEE-23DCED1223E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6DC5FB0E-DEE0-42BC-9FEE-23DCED1223E4}.Release|Any CPU.ActiveCfg = Release|Any CPU

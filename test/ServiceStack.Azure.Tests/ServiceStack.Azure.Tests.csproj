@@ -82,4 +82,10 @@
     <PackageReference Include="ServiceStack.Core" Version="1.0.*" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="settings.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
