@@ -62,6 +62,7 @@
     <PackageReference Include="Microsoft.Azure.ServiceBus" Version="0.0.6-preview" />
 
     <PackageReference Include="ServiceStack.Interfaces.Core" Version="1.0.*" />
+    <PackageReference Include="ServiceStack.Kestrel" Version="1.0.*" />
     <PackageReference Include="ServiceStack.Text.Core" Version="1.0.*" />
     <PackageReference Include="ServiceStack.Common.Core" Version="1.0.*" />
     <PackageReference Include="ServiceStack.Client.Core" Version="1.0.*" />
