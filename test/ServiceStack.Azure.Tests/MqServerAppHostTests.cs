@@ -1,17 +1,20 @@
-﻿#if !NETCORE_SUPPORT
-using System;
+﻿using System;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using Funq;
-using Microsoft.ServiceBus;
-using Microsoft.ServiceBus.Messaging;
 using NUnit.Framework;
 using ServiceStack.Azure.Messaging;
 using ServiceStack.Configuration;
 using ServiceStack.FluentValidation;
 using ServiceStack.Messaging;
 using ServiceStack.Validation;
+#if NETCORE
+using QueueClient = Microsoft.Azure.ServiceBus.QueueClient;
+#else
+using Microsoft.ServiceBus;
+using Microsoft.ServiceBus.Messaging;
+#endif
 
 namespace ServiceStack.Azure.Tests.Messaging
 {
@@ -22,7 +25,7 @@ namespace ServiceStack.Azure.Tests.Messaging
         {
             get
             {
-                var assembly = Assembly.GetExecutingAssembly();
+                var assembly = typeof(AzureServiceBusMqServerAppHostTests).GetAssembly();
                 var path = new Uri(assembly.CodeBase).LocalPath;
                 var configFile = Path.Combine(Path.GetDirectoryName(path), "settings.config");
 
@@ -31,6 +34,7 @@ namespace ServiceStack.Azure.Tests.Messaging
         }
         public AzureServiceBusMqServerAppHostTests()
         {
+#if !NETCORE_SUPPORT            
             NamespaceManager nm = NamespaceManager.CreateFromConnectionString(ConnectionString);
             Parallel.ForEach(nm.GetQueues(), qd =>
             {
@@ -40,6 +44,7 @@ namespace ServiceStack.Azure.Tests.Messaging
                 {
                 }
             });
+#endif
         }
 
         public override IMessageService CreateMqServer(int retryCount = 1)
@@ -137,7 +142,7 @@ namespace ServiceStack.Azure.Tests.Messaging
         private readonly Func<IMessageService> createMqServerFn;
 
         public MqTestsAppHost(Func<IMessageService> createMqServerFn)
-            : base("Service Name", typeof(AnyTestMq).Assembly)
+            : base("Service Name", typeof(AnyTestMq).GetAssembly())
         {
             this.createMqServerFn = createMqServerFn;
         }
@@ -385,4 +390,3 @@ namespace ServiceStack.Azure.Tests.Messaging
         }
     }
 }
-#endif
