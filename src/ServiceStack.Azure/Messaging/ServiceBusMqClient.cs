@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ServiceStack.Azure.Messaging
 {
@@ -50,24 +51,48 @@ namespace ServiceStack.Azure.Messaging
             // All dispose done in base class
         }
 
-        public IMessage<T> Get<T>(string queueName, TimeSpan? timeOut = default(TimeSpan?))
+        public IMessage<T> Get<T>(string queueName, TimeSpan? timeout = default(TimeSpan?))
         {
             var sbClient = GetOrCreateClient(queueName);
 
 #if NETSTANDARD1_6
-            Microsoft.Azure.ServiceBus.Message msg = null;
-            //sbClient.RegisterMessageHandler( 
-                
-              //  );
+            var msg = GetMessageFromClient(sbClient, timeout).Result;
 #else
-            var msg = timeOut.HasValue
-                ? sbClient.Receive(timeOut.Value)
+            var msg = timeout.HasValue
+                ? sbClient.Receive(timeout.Value)
                 : sbClient.Receive();
 #endif
 
 
             return CreateMessage<T>(msg);
         }
+
+#if NETSTANDARD1_6
+        private async Task<Microsoft.Azure.ServiceBus.Message> GetMessageFromClient(QueueClient sbClient, TimeSpan? timeout)
+        {
+            var tcs = new TaskCompletionSource<Microsoft.Azure.ServiceBus.Message>();
+            var task = tcs.Task;
+
+            sbClient.RegisterMessageHandler(async (message, token) =>
+            {
+                tcs.SetResult(message);
+                await sbClient.CompleteAsync(message.SystemProperties.LockToken);
+            });
+
+            if (timeout.HasValue)
+            {
+                await Task.WhenAny(task, Task.Delay((int)timeout.Value.TotalMilliseconds));
+
+                if (!task.IsCompleted)
+                    throw new TimeoutException("Reached timeout while getting message from client");
+            } else 
+            {
+                await task;
+            }
+
+            return task.Result;
+        }
+#endif
 
         public IMessage<T> GetAsync<T>(string queueName)
         {
