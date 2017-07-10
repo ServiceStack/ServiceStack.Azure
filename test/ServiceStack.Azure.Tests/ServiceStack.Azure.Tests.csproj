@@ -21,8 +21,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.KeyVault.Core" Version="2.0.4" />
-    <PackageReference Include="Microsoft.Data.Services.Client" Version="5.8.2" />
     <PackageReference Include="WindowsAzure.Storage" Version="8.1.4" />
     <PackageReference Include="NUnit" Version="3.6.1" />
     <ProjectReference Include="..\..\src\ServiceStack.Azure\ServiceStack.Azure.csproj" />
@@ -35,16 +33,6 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <PackageReference Include="WindowsAzure.ServiceBus" Version="4.1.2" />
     <PackageReference Include="Microsoft.WindowsAzure.ConfigurationManager" Version="3.2.3" />
-    <PackageReference Include="Microsoft.Data.Edm" Version="5.8.2" />
-    <PackageReference Include="Microsoft.Data.OData" Version="5.8.2" />
-
-
-    <Reference Include="System.Threading" />
-    <Reference Include="System.Threading.Tasks" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Web" />
-    <Reference Include="Microsoft.CSharp" />
 
     <Reference Include="..\..\lib\pcl\ServiceStack.Interfaces.dll" />
     <Reference Include="..\..\lib\net45\ServiceStack.Text.dll" />
@@ -71,8 +59,6 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
-    <PackageReference Include="System.Data.Common" Version="4.3.0" />
-
     <PackageReference Include="Microsoft.Azure.ServiceBus" Version="0.0.6-preview" />
 
     <PackageReference Include="ServiceStack.Interfaces.Core" Version="1.0.*" />

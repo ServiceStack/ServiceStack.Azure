@@ -45,22 +45,8 @@
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
-    <PackageReference Include="System.Runtime" Version="4.3.0" />
-    <PackageReference Include="System.Data.Common" Version="4.3.0" />
-
-
-    <PackageReference Include="System.ServiceModel.Primitives" Version="4.3.0" />
-    <PackageReference Include="System.Linq.Queryable" Version="4.3.0" />
-    <PackageReference Include="System.Threading" Version="4.3.0" />
-    <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
-    <PackageReference Include="System.Threading.ThreadPool" Version="4.3.0" />
-    <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.3.0" />
-
-
     <PackageReference Include="Microsoft.Azure.ServiceBus" Version="0.0.6-preview" />
     <PackageReference Include="Microsoft.Azure.Management.ServiceBus" Version="1.0.0" />
-
 
     <Reference Include="..\..\lib\netstandard1.1\ServiceStack.Interfaces.dll" />
     <Reference Include="..\..\lib\netstandard1.3\ServiceStack.Text.dll" />
