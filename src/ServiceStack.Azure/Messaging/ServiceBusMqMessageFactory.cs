@@ -76,15 +76,13 @@ namespace ServiceStack.Azure.Messaging
 #endif
 
 #if NETSTANDARD1_6
-                    //should be qd.Path
-                    string path = null;
-                    var sbClient = new QueueClient(address, path, ReceiveMode.PeekLock);
+                    var sbClient = new QueueClient(address, queueName, ReceiveMode.PeekLock);
                     var sbWorker = new ServiceBusMqWorker(this, CreateMessageQueueClient(), queueName, sbClient);
                     sbClient.RegisterMessageHandler(sbWorker.HandleMessageAsync,
                         new MessageHandlerOptions() { MaxConcurrentCalls = 1}
                      );
 
-                    sbClients.Add(path, sbClient);
+                    sbClients.Add(queueName, sbClient);
 
 #else
                     var options = new OnMessageOptions
