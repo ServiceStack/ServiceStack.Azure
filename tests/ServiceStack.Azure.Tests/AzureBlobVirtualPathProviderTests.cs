@@ -92,15 +92,15 @@ namespace ServiceStack.Azure.Tests
 
         protected ServiceStackHost appHost;
 
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             appHost = new BasicAppHost()
                 .Init();
         }
 
-        [TestFixtureTearDown]
-        public virtual void TestFixtureTearDown()
+        [OneTimeTearDown]
+        public virtual void OneTimeTearDown()
         {
             appHost.Dispose();
         }

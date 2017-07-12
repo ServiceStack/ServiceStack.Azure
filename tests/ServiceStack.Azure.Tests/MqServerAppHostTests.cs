@@ -180,16 +180,16 @@ namespace ServiceStack.Azure.Tests.Messaging
 
         public abstract IMessageService CreateMqServer(int retryCount = 1);
 
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             appHost = new MqTestsAppHost(() => CreateMqServer())
                 .Init()
                 .Start(ListeningOn);
         }
 
-        [TestFixtureTearDown]
-        public virtual void TestFixtureTearDown()
+        [OneTimeTearDown]
+        public virtual void OneTimeTearDown()
         {
             appHost.Dispose();
         }
