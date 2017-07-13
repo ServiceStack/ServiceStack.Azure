@@ -101,8 +101,7 @@ namespace ServiceStack.Azure.Messaging
 #endif
 
 #if NETSTANDARD1_6
-            //should be qd.Path
-            var sbClient = new QueueClient(parentFactory.address, null);
+            var sbClient = new QueueClient(parentFactory.address, queueName);
 #else
             var sbClient = QueueClient.CreateFromConnectionString(parentFactory.address, qd.Path);
 #endif

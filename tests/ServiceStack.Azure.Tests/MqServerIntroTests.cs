@@ -1,5 +1,4 @@
-﻿#if !NETCORE_SUPPORT
-using System;
+﻿using System;
 using System.IO;
 using System.Reflection;
 using System.Threading;
@@ -11,10 +10,15 @@ using ServiceStack.Messaging;
 using ServiceStack.Testing;
 using ServiceStack.Text;
 using ServiceStack.Azure.Messaging;
-using Microsoft.ServiceBus;
 using System.Threading.Tasks;
-using Microsoft.ServiceBus.Messaging;
 using ServiceStack.Configuration;
+#if NETCORE
+using QueueClient = Microsoft.Azure.ServiceBus.QueueClient;
+#else
+using Microsoft.ServiceBus;
+using Microsoft.ServiceBus.Messaging;
+#endif
+
 
 namespace ServiceStack.Azure.Tests.Messaging
 {
@@ -24,7 +28,7 @@ namespace ServiceStack.Azure.Tests.Messaging
         {
             get
             {
-                var assembly = Assembly.GetExecutingAssembly();
+                var assembly = typeof(AzureServiceBusMqServerIntroTests).GetAssembly();
                 var path = new Uri(assembly.CodeBase).LocalPath;
                 var configFile = Path.Combine(Path.GetDirectoryName(path), "settings.config");
 
@@ -34,6 +38,7 @@ namespace ServiceStack.Azure.Tests.Messaging
 
         public AzureServiceBusMqServerIntroTests()
         {
+#if !NETCORE_SUPPORT            
             NamespaceManager nm = NamespaceManager.CreateFromConnectionString(ConnectionString);
             Parallel.ForEach(nm.GetQueues(), qd =>
             {
@@ -43,6 +48,7 @@ namespace ServiceStack.Azure.Tests.Messaging
                 {
                 }
             });
+#endif
         }
 
         public override IMessageService CreateMqServer(int retryCount = 1)
@@ -410,7 +416,9 @@ namespace ServiceStack.Azure.Tests.Messaging
             {
                 ConfigureAppHost = host =>
                 {
+#if !NETCORE                    
                     RequestContext.UseThreadStatic = true;
+#endif
                     host.Container.Register<IDisposableDependency>(c => new DisposableDependency(() =>
                     {
                         Interlocked.Increment(ref disposeCount);
@@ -447,4 +455,3 @@ namespace ServiceStack.Azure.Tests.Messaging
         public static string SqlServerBuildDb = "Server=localhost;Database=test;User Id=test;Password=test;";
     }
 }
-#endif
