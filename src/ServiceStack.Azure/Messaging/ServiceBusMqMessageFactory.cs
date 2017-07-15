@@ -1,17 +1,13 @@
-﻿#if NETSTANDARD1_6
+﻿using ServiceStack.Messaging;
+using System;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+#if NETSTANDARD1_6
 using Microsoft.Azure.ServiceBus;
-using QueueClient = Microsoft.Azure.ServiceBus.QueueClient;
-using ReceiveMode = Microsoft.Azure.ServiceBus.ReceiveMode;
-//using QueueDescription = Microsoft.ServiceBus.Messaging.QueueDescription;
-//using NamespaceManager = Microsoft.ServiceBus.NamespaceManager;
-//using OnMessageOptions = Microsoft.ServiceBus.Messaging.OnMessageOptions;
 #else
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 #endif
-using ServiceStack.Messaging;
-using System;
-using System.Collections.Generic;
 
 
 namespace ServiceStack.Azure.Messaging
@@ -79,7 +75,12 @@ namespace ServiceStack.Azure.Messaging
                     var sbClient = new QueueClient(address, queueName, ReceiveMode.PeekLock);
                     var sbWorker = new ServiceBusMqWorker(this, CreateMessageQueueClient(), queueName, sbClient);
                     sbClient.RegisterMessageHandler(sbWorker.HandleMessageAsync,
-                        new MessageHandlerOptions() { MaxConcurrentCalls = 1}
+                        new MessageHandlerOptions(
+                            (eventArgs) =>
+                            {
+                                return Task.CompletedTask;
+                            }
+                        ) { MaxConcurrentCalls = 1}
                      );
 
                     sbClients.Add(queueName, sbClient);

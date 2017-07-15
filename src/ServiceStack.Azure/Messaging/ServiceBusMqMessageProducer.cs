@@ -4,11 +4,6 @@ using ServiceStack.Messaging;
 using ServiceStack.Text;
 #if NETSTANDARD1_6
 using Microsoft.Azure.ServiceBus;
-using QueueClient = Microsoft.Azure.ServiceBus.QueueClient;
-using ReceiveMode = Microsoft.Azure.ServiceBus.ReceiveMode;
-//using QueueDescription = Microsoft.ServiceBus.Messaging.QueueDescription;
-//using NamespaceManager = Microsoft.ServiceBus.NamespaceManager;
-//using OnMessageOptions = Microsoft.ServiceBus.Messaging.OnMessageOptions;
 #else
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;

@@ -1,15 +1,15 @@
-﻿#if NETSTANDARD1_6
-using QueueClient = Microsoft.Azure.ServiceBus.QueueClient;
-#else
-using Microsoft.ServiceBus.Messaging;
-#endif
-using ServiceStack.Messaging;
+﻿using ServiceStack.Messaging;
 using ServiceStack.Text;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+#if NETSTANDARD1_6
+using Microsoft.Azure.ServiceBus;
+#else
+using Microsoft.ServiceBus.Messaging;
+#endif
 
 namespace ServiceStack.Azure.Messaging
 {
@@ -73,11 +73,17 @@ namespace ServiceStack.Azure.Messaging
             var tcs = new TaskCompletionSource<Microsoft.Azure.ServiceBus.Message>();
             var task = tcs.Task;
 
-            sbClient.RegisterMessageHandler(async (message, token) =>
-            {
-                tcs.SetResult(message);
-                await sbClient.CompleteAsync(message.SystemProperties.LockToken);
-            });
+            sbClient.RegisterMessageHandler(
+                async (message, token) =>
+                {
+                    tcs.SetResult(message);
+                    await sbClient.CompleteAsync(message.SystemProperties.LockToken);
+                },
+                (eventArgs) =>
+                {
+                    return Task.CompletedTask;
+                }
+            );
 
             if (timeout.HasValue)
             {

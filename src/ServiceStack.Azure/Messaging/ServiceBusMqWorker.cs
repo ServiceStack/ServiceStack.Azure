@@ -1,9 +1,4 @@
-﻿#if NETSTANDARD1_6
-using QueueClient = Microsoft.Azure.ServiceBus.QueueClient;
-#else
-using Microsoft.ServiceBus.Messaging;
-#endif
-using ServiceStack.Logging;
+﻿using ServiceStack.Logging;
 using ServiceStack.Messaging;
 using ServiceStack.Text;
 using System;
@@ -12,6 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+#if NETSTANDARD1_6
+using Microsoft.Azure.ServiceBus;
+#else
+using Microsoft.ServiceBus.Messaging;
+#endif
 
 namespace ServiceStack.Azure.Messaging
 {
