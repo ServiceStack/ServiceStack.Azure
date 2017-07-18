@@ -70,7 +70,7 @@ namespace ServiceStack.Azure.Messaging
                     Body = msgBody.ToUtf8Bytes(),
                     MessageId = message.Id.ToString()
                 };
-                sbClient.SendAsync(msg);
+                sbClient.SendAsync(msg).Wait();
 #else
                 BrokeredMessage msg = new BrokeredMessage(msgBody);
                 msg.MessageId = message.Id.ToString();
