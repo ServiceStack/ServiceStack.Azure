@@ -8,6 +8,7 @@ using ServiceStack.Text;
 using System;
 using System.Globalization;
 using System.Threading;
+using ServiceStack.Logging;
 
 namespace ServiceStack.Azure.Tests
 {
@@ -27,6 +28,8 @@ namespace ServiceStack.Azure.Tests
 
             Licensing.RegisterLicense(licenseKey);
             //"ActivatedLicenseFeatures: ".Print(LicenseUtils.ActivatedLicenseFeatures());
+            LogManager.LogFactory = new ConsoleLogFactory(debugEnabled:true);
+            
 
             CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
             JsConfig.InitStatics();
