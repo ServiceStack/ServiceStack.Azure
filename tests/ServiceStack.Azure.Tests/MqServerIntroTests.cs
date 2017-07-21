@@ -18,6 +18,7 @@ using QueueClient = Microsoft.Azure.ServiceBus.QueueClient;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 #endif
+using ServiceStack.Logging;
 
 
 namespace ServiceStack.Azure.Tests.Messaging
@@ -340,6 +341,7 @@ namespace ServiceStack.Azure.Tests.Messaging
         [Test]
         public void Does_process_messages_in_BasicAppHost()
         {
+            LogManager.LogFactory = null;
             using (var appHost = new BasicAppHost(typeof(HelloService).GetAssembly())
             {
                 ConfigureAppHost = host =>
@@ -427,6 +429,7 @@ namespace ServiceStack.Azure.Tests.Messaging
         [Test]
         public void Does_dispose_request_scope_dependency_in_PostMessageHandler()
         {
+            LogManager.LogFactory = null;
             var disposeCount = 0;
             using (var appHost = new BasicAppHost(typeof(HelloWithDepService).GetAssembly())
             {
