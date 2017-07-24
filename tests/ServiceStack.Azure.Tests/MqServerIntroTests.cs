@@ -123,14 +123,17 @@ namespace ServiceStack.Azure.Tests.Messaging
 
             var authRepo = container.Resolve<IUserAuthRepository>();
 
-            authRepo.CreateUserAuth(new UserAuth
+            if (authRepo.GetUserAuthByUserName("mythz") == null)
             {
-                Id = 1,
-                UserName = "mythz",
-                FirstName = "First",
-                LastName = "Last",
-                DisplayName = "Display",
-            }, "p@55word");
+                authRepo.CreateUserAuth(new UserAuth
+                {
+                    Id = 1,
+                    UserName = "mythz",
+                    FirstName = "First",
+                    LastName = "Last",
+                    DisplayName = "Display",
+                }, "p@55word");
+            }
 
             container.Register(c => createMqServerFn());
 
@@ -253,13 +256,14 @@ namespace ServiceStack.Azure.Tests.Messaging
         }
 
         [Test]
-#if NETCORE_SUPPORT        
-        [Ignore("Need to fix on .NET Core")]
-#endif
         public void Does_process_messages_in_HttpListener_AppHost()
         {
+            LogManager.LogFactory = null;
             using (var appHost = new AppHost(() => CreateMqServer()).Init())
             {
+#if NETCORE
+                appHost.Start(Config.ListeningOn);
+#endif
                 using (var mqClient = appHost.Resolve<IMessageService>().CreateMessageQueueClient())
                 {
                     mqClient.Publish(new HelloIntro { Name = "World" });
@@ -272,13 +276,15 @@ namespace ServiceStack.Azure.Tests.Messaging
         }
 
         [Test]
-#if NETCORE_SUPPORT        
-        [Ignore("Need to fix on .NET Core")]
-#endif
         public void Does_process_multi_messages_in_HttpListener_AppHost()
         {
+            LogManager.LogFactory = null;
             using (var appHost = new AppHost(() => CreateMqServer()).Init())
             {
+#if NETCORE
+                appHost.Start(Config.ListeningOn);
+#endif
+                
                 using (var mqClient = appHost.Resolve<IMessageService>().CreateMessageQueueClient())
                 {
                     var requests = new[]
@@ -302,15 +308,14 @@ namespace ServiceStack.Azure.Tests.Messaging
         }
 
         [Test]
-#if NETCORE_SUPPORT        
-        [Ignore("Need to fix on .NET Core")]
-#endif
         public void Can_make_authenticated_requests_with_MQ()
         {
+            LogManager.LogFactory = null;
             using (var appHost = new AppHost(() => CreateMqServer()).Init())
             {
+#if NETCORE
                 appHost.Start(Config.ListeningOn);
-
+#endif
                 var client = new JsonServiceClient(Config.ListeningOn);
 
                 var response = client.Post(new Authenticate
