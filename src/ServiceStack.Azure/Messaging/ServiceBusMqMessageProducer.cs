@@ -4,6 +4,7 @@ using ServiceStack.Messaging;
 using ServiceStack.Text;
 #if NETSTANDARD1_6
 using Microsoft.Azure.ServiceBus;
+using Microsoft.Azure.ServiceBus.Core;
 #else
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
@@ -14,6 +15,7 @@ namespace ServiceStack.Azure.Messaging
     public class ServiceBusMqMessageProducer : IMessageProducer
     {
         private readonly Dictionary<string, QueueClient> sbClients = new Dictionary<string, QueueClient>();
+        private readonly Dictionary<string, MessageReceiver> sbReceivers = new Dictionary<string, MessageReceiver>();
         private readonly ServiceBusMqMessageFactory parentFactory;
 
         protected internal ServiceBusMqMessageProducer(ServiceBusMqMessageFactory parentFactory)
@@ -79,6 +81,25 @@ namespace ServiceStack.Azure.Messaging
 #endif
             }
         }
+
+#if NETSTANDARD1_6
+        protected MessageReceiver GetOrCreateMessageReceiver(string queueName)
+        {
+            if (queueName.StartsWith(QueueNames.MqPrefix))
+                queueName = queueName.ReplaceFirst(QueueNames.MqPrefix, "");
+
+            if (sbReceivers.ContainsKey(queueName))
+                return sbReceivers[queueName];
+
+            var messageReceiver = new MessageReceiver(
+             parentFactory.address,
+             queueName,
+             ReceiveMode.ReceiveAndDelete);  //should be ReceiveMode.PeekLock, but it does not delete messages from queue on CompleteAsync()
+             
+            sbReceivers.Add(queueName, messageReceiver);
+            return messageReceiver;
+        }
+#endif
 
         protected QueueClient GetOrCreateClient(string queueName)
         {
