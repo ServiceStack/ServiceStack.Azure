@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 #if NETSTANDARD1_6
 using Microsoft.Azure.ServiceBus;
+using Microsoft.Azure.ServiceBus.Core;
 #else
 using Microsoft.ServiceBus.Messaging;
 #endif
@@ -54,9 +55,10 @@ namespace ServiceStack.Azure.Messaging
         public IMessage<T> Get<T>(string queueName, TimeSpan? timeout = default(TimeSpan?))
         {
             var sbClient = GetOrCreateClient(queueName);
-
 #if NETSTANDARD1_6
-            var msg = GetMessageFromClient(sbClient, timeout).Result;
+            var msg = sbClient.ReceiveAsync(timeout).Result;
+            if (msg != null)
+                sbClient.CompleteAsync(msg.SystemProperties.LockToken).Wait();
 #else
             var msg = timeout.HasValue
                 ? sbClient.Receive(timeout.Value)
@@ -68,6 +70,16 @@ namespace ServiceStack.Azure.Messaging
         }
 
 #if NETSTANDARD1_6
+        private async Task<Microsoft.Azure.ServiceBus.Message> GetMessageFromReceiver(MessageReceiver messageReceiver, TimeSpan? timeout)
+        {
+            var msg = timeout.HasValue
+                ? await messageReceiver.ReceiveAsync(timeout.Value)
+                : await messageReceiver.ReceiveAsync();
+
+            await messageReceiver.CompleteAsync(msg.SystemProperties.LockToken);
+            return msg;
+        }
+
         private async Task<Microsoft.Azure.ServiceBus.Message> GetMessageFromClient(QueueClient sbClient, TimeSpan? timeout)
         {
             var tcs = new TaskCompletionSource<Microsoft.Azure.ServiceBus.Message>();
