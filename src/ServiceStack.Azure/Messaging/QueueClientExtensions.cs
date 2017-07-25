@@ -4,12 +4,13 @@ using Microsoft.Azure.ServiceBus.Core;
 using System.Threading.Tasks;
 using System;
 using ServiceStack.Text;
+using System.Reflection;
 
 namespace ServiceStack.Azure.Messaging
 {
     public static class QueueClientExtensions
     {
-        static readonly innerReceiverProperty = typeof(QueueClient).GetProperty("InnerReceiver");
+        static readonly PropertyInfo innerReceiverProperty = typeof(QueueClient).GetProperty("InnerReceiver");
 
         public static async Task<Microsoft.Azure.ServiceBus.Message> ReceiveAsync(this QueueClient sbClient, TimeSpan? timeout)
         {
