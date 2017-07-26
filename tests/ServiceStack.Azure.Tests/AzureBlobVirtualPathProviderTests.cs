@@ -1,5 +1,4 @@
-﻿#if !NETCORE
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -335,4 +334,3 @@ namespace ServiceStack.Azure.Tests
         }
     }
 }
-#endif

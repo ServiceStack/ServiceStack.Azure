@@ -1,5 +1,4 @@
-﻿#if !NETSTANDARD1_6
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System;
 using System.Text;
@@ -56,16 +55,16 @@ namespace ServiceStack.Azure.Storage
         {
             entry = null;
 
-            TableOperation op = TableOperation.Retrieve<TableCacheEntry>(partitionKey, key);
-            TableResult retrievedResult = table.Execute(op);
+            var op = TableOperation.Retrieve<TableCacheEntry>(partitionKey, key);
+            var retrievedResult = table.Execute(op);
 
             if (retrievedResult.Result != null)
             {
                 entry = retrievedResult.Result as TableCacheEntry;
                 return true;
             }
-            else
-                return false;
+
+            return false;
         }
 
 
@@ -268,8 +267,7 @@ namespace ServiceStack.Azure.Storage
         public IEnumerable<string> GetKeysByPattern(string pattern)
         {
             // Very inefficient - query all keys and do client-side filter
-            TableQuery<TableCacheEntry> query = new TableQuery<TableCacheEntry>()
-                ;
+            var query = new TableQuery<TableCacheEntry>();
 
             return table.ExecuteQuery<TableCacheEntry>(query)
                 .Where(q => q.RowKey.Glob(pattern))
@@ -352,4 +350,3 @@ namespace ServiceStack.Azure.Storage
 
     }
 }
-#endif

@@ -1,5 +1,4 @@
-﻿#if !NETSTANDARD1_6
-using ServiceStack.IO;
+﻿using ServiceStack.IO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,7 +66,7 @@ namespace ServiceStack.Azure.Storage
 
         public void DeleteFiles(IEnumerable<string> filePaths)
         {
-            filePaths.Each(q => DeleteFile(q));
+            filePaths.Each(DeleteFile);
         }
 
         public void DeleteFolder(string dirPath)
@@ -136,4 +135,3 @@ namespace ServiceStack.Azure.Storage
         }
     }
 }
-#endif
