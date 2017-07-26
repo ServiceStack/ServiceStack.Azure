@@ -1,5 +1,4 @@
-﻿#if !NETSTANDARD1_6
-using ServiceStack.IO;
+﻿using ServiceStack.IO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,13 +50,7 @@ namespace ServiceStack.Azure.Storage
             }
         }
 
-        public override IEnumerable<IVirtualFile> Files
-        {
-            get
-            {
-                return pathProvider.GetImmediateFiles(this.DirPath);
-            }
-        }
+        public override IEnumerable<IVirtualFile> Files => pathProvider.GetImmediateFiles(this.DirPath);
 
         // Azure Blob storage directories only exist if there are contents beneath them
         public bool Exists()
@@ -69,15 +62,9 @@ namespace ServiceStack.Azure.Storage
 
         }
 
-        public override string Name
-        {
-            get { return DirPath != null ? DirPath.SplitOnLast(pathProvider.RealPathSeparator).Last() : null; }
-        }
+        public override string Name => DirPath?.SplitOnLast(pathProvider.RealPathSeparator).Last();
 
-        public override string VirtualPath
-        {
-            get { return DirPath; }
-        }
+        public override string VirtualPath => DirPath;
 
         public override IEnumerator<IVirtualNode> GetEnumerator()
         {
@@ -116,4 +103,3 @@ namespace ServiceStack.Azure.Storage
 
     }
 }
-#endif

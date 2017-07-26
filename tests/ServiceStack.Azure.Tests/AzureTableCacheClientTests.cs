@@ -1,5 +1,4 @@
-﻿#if !NETCORE_SUPPORT
-using ServiceStack.Azure.Tests.Shared;
+﻿using ServiceStack.Azure.Tests.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,4 +35,3 @@ namespace ServiceStack.Azure.Tests
         }
     }
 }
-#endif
