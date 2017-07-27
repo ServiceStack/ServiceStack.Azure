@@ -8,7 +8,7 @@ using ServiceStack.Caching;
 using ServiceStack.Azure.Storage;
 using NUnit.Framework;
 
-namespace ServiceStack.Azure.Tests
+namespace ServiceStack.Azure.Tests.Storage
 {
     public class AzureTableCacheClientTests : CacheClientTestsBase
     {

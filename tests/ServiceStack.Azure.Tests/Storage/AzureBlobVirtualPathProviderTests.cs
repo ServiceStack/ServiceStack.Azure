@@ -10,7 +10,7 @@ using ServiceStack.VirtualPath;
 using Microsoft.WindowsAzure.Storage;
 using ServiceStack.Azure.Storage;
 
-namespace ServiceStack.Azure.Tests
+namespace ServiceStack.Azure.Tests.Storage
 {
 
     [TestFixture]
