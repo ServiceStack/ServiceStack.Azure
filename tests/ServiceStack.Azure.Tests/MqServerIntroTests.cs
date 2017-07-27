@@ -200,9 +200,7 @@ namespace ServiceStack.Azure.Tests.Messaging
         }
 
         [Test]
-#if NETCORE_SUPPORT
         [Ignore("Fix test")]
-#endif
         public void Message_with_exceptions_are_retried_then_published_to_Request_dlq()
         {
             using (var mqServer = CreateMqServer(retryCount: 1))
@@ -313,9 +311,7 @@ namespace ServiceStack.Azure.Tests.Messaging
             LogManager.LogFactory = null;
             using (var appHost = new AppHost(() => CreateMqServer()).Init())
             {
-#if NETCORE
                 appHost.Start(Config.ListeningOn);
-#endif
                 var client = new JsonServiceClient(Config.ListeningOn);
 
                 var response = client.Post(new Authenticate
