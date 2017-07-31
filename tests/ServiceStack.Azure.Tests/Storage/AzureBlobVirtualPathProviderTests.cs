@@ -129,6 +129,7 @@ namespace ServiceStack.Azure.Tests.Storage
         }
 
         [Test]
+        [Ignore("Does not work with Azure Storage emulator")]
         public void Does_refresh_LastModified()
         {
             var pathProvider = GetPathProvider();
