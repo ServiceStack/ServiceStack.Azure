@@ -21,7 +21,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="WindowsAzure.Storage" Version="8.2.1" />
+    <PackageReference Include="WindowsAzure.Storage" Version="8.4.0" />
     <PackageReference Include="NUnit" Version="3.6.1" />
     <ProjectReference Include="..\..\src\ServiceStack.Azure\ServiceStack.Azure.csproj" />
   </ItemGroup>
@@ -59,7 +59,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
-    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="0.0.7-preview" />
+    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="1.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="1.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.1.1" />
