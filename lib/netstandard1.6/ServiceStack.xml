@@ -48,6 +48,11 @@
             Enable the authentication feature and configure the AuthService.
             </summary>
         </member>
+        <member name="P:ServiceStack.AuthFeature.SaveUserNamesInLowerCase">
+            <summary>
+            Should UserName or Emails be saved in AuthRepository in LowerCase
+            </summary>
+        </member>
         <member name="T:ServiceStack.Auth.IManageApiKeys">
             <summary>
             The Interface Auth Repositories need to implement to support API Keys
@@ -5549,6 +5554,11 @@
             By default Auth and Registration requests are hidden.
             </summary>
         </member>
+        <member name="P:ServiceStack.RequestLogsFeature.LimitToServiceRequests">
+            <summary>
+            Limit logging to only Service Requests
+            </summary>
+        </member>
         <member name="T:ServiceStack.RequiredPermissionAttribute">
             <summary>
             Indicates that the request dto, which is associated with this attribute,
@@ -5739,12 +5749,6 @@
             this methods needs to be overwritten in subclass to provider a listener to start handling requests.
             </summary>
             <param name="urlBase">Url to listen to</param>
-        </member>
-        <member name="M:ServiceStack.ServiceStackHost.RedirectDirectory(ServiceStack.Web.IHttpRequest)">
-            <summary>
-            Retain the same behavior as ASP.NET and redirect requests to directores 
-            without a trailing '/'
-            </summary>
         </member>
         <member name="P:ServiceStack.ServiceStackHost.Container">
             <summary>
