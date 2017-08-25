@@ -10,7 +10,7 @@ namespace ServiceStack.Azure.Storage
 {
     public class AzureBlobVirtualPathProvider : AbstractVirtualPathProviderBase, IVirtualFiles
     {
-        public CloudBlobContainer Container { get; private set; }
+        public CloudBlobContainer Container { get; }
 
         private readonly AzureBlobVirtualDirectory rootDirectory;
 
@@ -50,12 +50,12 @@ namespace ServiceStack.Azure.Storage
 
         public void AppendFile(string filePath, string textContents)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public void AppendFile(string filePath, Stream stream)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public void DeleteFile(string filePath)
@@ -74,7 +74,7 @@ namespace ServiceStack.Azure.Storage
             dirPath = SanitizePath(dirPath);
             // Delete based on a wildcard search of the directory
             if (!dirPath.EndsWith("/")) dirPath += "/";
-            //dirPath += "*";
+            //directoryPath += "*";
             foreach (var blob in Container.ListBlobs(dirPath, true))
             {
                 Container.GetBlockBlobReference(((CloudBlockBlob)blob).Name).DeleteIfExists();

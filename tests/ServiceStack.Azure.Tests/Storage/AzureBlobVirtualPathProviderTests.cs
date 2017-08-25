@@ -251,46 +251,46 @@ namespace ServiceStack.Azure.Tests.Storage
             Assert.That(!pathProvider.IsDirectory("a/testfile-a1.txt"));
 
             AssertContents(pathProvider.RootDirectory, new[] {
-                    "testfile.txt",
-                }, new[] {
-                    "a",
-                    "e"
-                });
+                "testfile.txt",
+            }, new[] {
+                "a",
+                "e"
+            });
 
             AssertContents(pathProvider.GetDirectory("a"), new[] {
-                    "a/testfile-a1.txt",
-                    "a/testfile-a2.txt",
-                }, new[] {
-                    "a/b",
-                    "a/d"
-                });
+                "a/testfile-a1.txt",
+                "a/testfile-a2.txt",
+            }, new[] {
+                "a/b",
+                "a/d"
+            });
 
             AssertContents(pathProvider.GetDirectory("a/b"), new[] {
-                    "a/b/testfile-ab1.txt",
-                    "a/b/testfile-ab2.txt",
-                }, new[] {
-                    "a/b/c"
-                });
+                "a/b/testfile-ab1.txt",
+                "a/b/testfile-ab2.txt",
+            }, new[] {
+                "a/b/c"
+            });
 
             AssertContents(pathProvider.GetDirectory("a").GetDirectory("b"), new[] {
-                    "a/b/testfile-ab1.txt",
-                    "a/b/testfile-ab2.txt",
-                }, new[] {
-                    "a/b/c"
-                });
+                "a/b/testfile-ab1.txt",
+                "a/b/testfile-ab2.txt",
+            }, new[] {
+                "a/b/c"
+            });
 
             AssertContents(pathProvider.GetDirectory("a/b/c"), new[] {
-                    "a/b/c/testfile-abc1.txt",
-                    "a/b/c/testfile-abc2.txt",
-                }, new string[0]);
+                "a/b/c/testfile-abc1.txt",
+                "a/b/c/testfile-abc2.txt",
+            }, new string[0]);
 
             AssertContents(pathProvider.GetDirectory("a/d"), new[] {
-                    "a/d/testfile-ad1.txt",
-                }, new string[0]);
+                "a/d/testfile-ad1.txt",
+            }, new string[0]);
 
             AssertContents(pathProvider.GetDirectory("e"), new[] {
-                    "e/testfile-e1.txt",
-                }, new string[0]);
+                "e/testfile-e1.txt",
+            }, new string[0]);
 
             Assert.That(pathProvider.GetFile("a/b/c/testfile-abc1.txt").ReadAllText(), Is.EqualTo("testfile-abc1"));
             Assert.That(pathProvider.GetDirectory("a").GetFile("b/c/testfile-abc1.txt").ReadAllText(), Is.EqualTo("testfile-abc1"));
@@ -309,11 +309,52 @@ namespace ServiceStack.Azure.Tests.Storage
             allFiles = pathProvider.GetAllFiles().Map(x => x.VirtualPath);
             Assert.That(allFiles, Is.EquivalentTo(allFilePaths));
 
+            Assert.That(pathProvider.DirectoryExists("a"));
+            Assert.That(!pathProvider.DirectoryExists("f"));
+            Assert.That(!pathProvider.GetDirectory("a/b/c").IsRoot);
+            Assert.That(!pathProvider.GetDirectory("a/b").IsRoot);
+            Assert.That(!pathProvider.GetDirectory("a").IsRoot);
+            Assert.That(pathProvider.GetDirectory("").IsRoot);
+
             pathProvider.DeleteFile("testfile.txt");
             pathProvider.DeleteFolder("a");
             pathProvider.DeleteFolder("e");
 
             Assert.That(pathProvider.GetAllFiles().ToList().Count, Is.EqualTo(0));
+        }
+
+        [Test]
+        [Ignore("Not supported on Azure Block Blobs")]
+        public void Does_append_to_file()
+        {
+            var pathProvider = GetPathProvider();
+            pathProvider.DeleteFile("original.txt");
+            pathProvider.WriteFile("original.txt", "original\n");
+
+            pathProvider.AppendFile("original.txt", "New Line1\n");
+            pathProvider.AppendFile("original.txt", "New Line2\n");
+
+            var contents = pathProvider.GetFile("original.txt").ReadAllText();
+            Assert.That(contents, Is.EqualTo("original\nNew Line1\nNew Line2\n"));
+
+            pathProvider.DeleteFile("original.txt");
+        }
+
+        [Test]
+        [Ignore("Not supported on Azure Block Blobs")]
+        public void Does_append_to_file_bytes()
+        {
+            var pathProvider = GetPathProvider();
+            pathProvider.DeleteFile("original.bin");
+            pathProvider.WriteFile("original.bin", "original\n".ToUtf8Bytes());
+
+            pathProvider.AppendFile("original.bin", "New Line1\n".ToUtf8Bytes());
+            pathProvider.AppendFile("original.bin", "New Line2\n".ToUtf8Bytes());
+
+            var contents = pathProvider.GetFile("original.bin").ReadAllBytes();
+            Assert.That(contents, Is.EquivalentTo("original\nNew Line1\nNew Line2\n".ToUtf8Bytes()));
+
+            pathProvider.DeleteFile("original.bin");
         }
 
         public void AssertContents(IVirtualDirectory dir,

@@ -14,30 +14,36 @@ namespace ServiceStack.Azure.Storage
     {
         private readonly AzureBlobVirtualPathProvider pathProvider;
 
-        public AzureBlobVirtualDirectory(AzureBlobVirtualPathProvider pathProvider, string dirPath)
+        public AzureBlobVirtualDirectory(AzureBlobVirtualPathProvider pathProvider, string directoryPath)
             : base(pathProvider)
         {
             this.pathProvider = pathProvider;
-            this.DirPath = dirPath;
-        }
+            this.DirectoryPath = directoryPath;
 
-        public string DirPath { get; set; }
+            if (directoryPath == "/" || directoryPath.IsNullOrEmpty())
+                return;
 
-        static readonly char DirSep = '/';
+            var separatorIndex = directoryPath.LastIndexOf(pathProvider.RealPathSeparator, StringComparison.Ordinal);
+
+            ParentDirectory = new AzureBlobVirtualDirectory(pathProvider, 
+                separatorIndex == -1 ? string.Empty : directoryPath.Substring(0, separatorIndex));
+    }
+
+        public string DirectoryPath { get; set; }
 
         public override IEnumerable<IVirtualDirectory> Directories
         {
             get
             {
-                var blobs = pathProvider.Container.ListBlobs((this.DirPath == null)
+                var blobs = pathProvider.Container.ListBlobs(DirectoryPath == null
                     ? null
-                    : this.DirPath + pathProvider.RealPathSeparator);
+                    : DirectoryPath + pathProvider.RealPathSeparator);
 
                 return blobs.Where(q => q.GetType() == typeof(CloudBlobDirectory))
                     .Select(q =>
                     {
                         var blobDir = (CloudBlobDirectory)q;
-                        return new AzureBlobVirtualDirectory(pathProvider, blobDir.Prefix.Trim(new char[] { '/' }));
+                        return new AzureBlobVirtualDirectory(pathProvider, blobDir.Prefix.Trim(pathProvider.RealPathSeparator[0]));
                     });
             }
         }
@@ -50,21 +56,21 @@ namespace ServiceStack.Azure.Storage
             }
         }
 
-        public override IEnumerable<IVirtualFile> Files => pathProvider.GetImmediateFiles(this.DirPath);
+        public override IEnumerable<IVirtualFile> Files => pathProvider.GetImmediateFiles(this.DirectoryPath);
 
         // Azure Blob storage directories only exist if there are contents beneath them
         public bool Exists()
         {
-            var ret = pathProvider.Container.ListBlobs(this.DirPath, false)
+            var ret = pathProvider.Container.ListBlobs(this.DirectoryPath, false)
                 .Where(q => q.GetType() == typeof(CloudBlobDirectory))
                 .Any();
             return ret;
 
         }
 
-        public override string Name => DirPath?.SplitOnLast(pathProvider.RealPathSeparator).Last();
+        public override string Name => DirectoryPath?.SplitOnLast(pathProvider.RealPathSeparator).Last();
 
-        public override string VirtualPath => DirPath;
+        public override string VirtualPath => DirectoryPath;
 
         public override IEnumerator<IVirtualNode> GetEnumerator()
         {
@@ -73,13 +79,13 @@ namespace ServiceStack.Azure.Storage
 
         protected override IVirtualFile GetFileFromBackingDirectoryOrDefault(string fileName)
         {
-            fileName = pathProvider.CombineVirtualPath(this.DirPath, pathProvider.SanitizePath(fileName));
+            fileName = pathProvider.CombineVirtualPath(this.DirectoryPath, pathProvider.SanitizePath(fileName));
             return pathProvider.GetFile(fileName);
         }
 
         protected override IEnumerable<IVirtualFile> GetMatchingFilesInDir(string globPattern)
         {
-            var dir = (this.DirPath == null) ? null : this.DirPath + pathProvider.RealPathSeparator;
+            var dir = (this.DirectoryPath == null) ? null : this.DirectoryPath + pathProvider.RealPathSeparator;
 
             var ret = pathProvider.Container.ListBlobs(dir)
                       .Where(q => q.GetType() == typeof(CloudBlockBlob))
@@ -97,7 +103,7 @@ namespace ServiceStack.Azure.Storage
 
         protected override IVirtualDirectory GetDirectoryFromBackingDirectoryOrDefault(string directoryName)
         {
-            return new AzureBlobVirtualDirectory(this.pathProvider, pathProvider.SanitizePath(DirPath.CombineWith(directoryName)));
+            return new AzureBlobVirtualDirectory(this.pathProvider, pathProvider.SanitizePath(DirectoryPath.CombineWith(directoryName)));
         }
 
 
