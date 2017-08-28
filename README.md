@@ -7,9 +7,9 @@ ServiceStack.Azure package provides support to Azure ServiceBus and Azure Blob S
 
 ServiceStack.Azure includes implementation of the following ServiceStack providers:
 
-- AzureBlobVirtualPathProvider - Virtual file system based on Azure Blob Storage
-- AzureTableCacheClient - Cache client over Azure Table Storage
-- ServiceBusMqServer - [MQ Server](http://docs.servicestack.net/messaging) for invoking ServiceStack Services via Azure ServiceBus
+- [ServiceBusMqServer](#ServiceBusMqServer) - [MQ Server](http://docs.servicestack.net/messaging) for invoking ServiceStack Services via Azure ServiceBus
+- [AzureBlobVirtualPathProvider](#virtual-filesystem-backed-by-azure-blob-storage) - Virtual file system based on Azure Blob Storage
+- [AzureTableCacheClient](#caching-support-with-azure-table-storage) - Cache client over Azure Table Storage
 
 
 ### ServiceBusMqServer
