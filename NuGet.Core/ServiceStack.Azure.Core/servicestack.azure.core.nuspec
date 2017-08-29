@@ -15,9 +15,9 @@
     <language>en-US</language> 
     <copyright>ServiceStack 2017 and Contributors</copyright>
     <dependencies>
-        <dependency id="Microsoft.Azure.ServiceBus" version="0.0.6-preview" />
+        <dependency id="Microsoft.Azure.ServiceBus" version="1.0.0" />
         <dependency id="Microsoft.Azure.Management.ServiceBus" version="1.0.0" />
-        <dependency id="WindowsAzure.Storage" version="8.1.4" />
+        <dependency id="WindowsAzure.Storage" version="8.4.0" />
         <dependency id="ServiceStack.Text.Core" version="1.0.0" />
         <dependency id="ServiceStack.Interfaces.Core" version="1.0.0" />
         <dependency id="ServiceStack.Client.Core" version="1.0.0" />
