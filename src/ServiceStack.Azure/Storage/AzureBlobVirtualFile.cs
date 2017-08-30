@@ -13,12 +13,12 @@ namespace ServiceStack.Azure.Storage
     public class AzureBlobVirtualFile : AbstractVirtualFileBase
     {
 
-        private readonly AzureBlobVirtualPathProvider pathProvider;
+        private readonly AzureBlobVirtualFiles pathProvider;
         private readonly CloudBlobContainer container;
 
         public CloudBlockBlob Blob { get; private set; }
 
-        public AzureBlobVirtualFile(AzureBlobVirtualPathProvider owningProvider, IVirtualDirectory directory)
+        public AzureBlobVirtualFile(AzureBlobVirtualFiles owningProvider, IVirtualDirectory directory)
             : base(owningProvider, directory)
         {
             this.pathProvider = owningProvider;

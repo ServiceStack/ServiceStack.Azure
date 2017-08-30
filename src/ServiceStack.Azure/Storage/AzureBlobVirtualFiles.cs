@@ -8,7 +8,7 @@ using ServiceStack.VirtualPath;
 
 namespace ServiceStack.Azure.Storage
 {
-    public class AzureBlobVirtualPathProvider : AbstractVirtualPathProviderBase, IVirtualFiles
+    public class AzureBlobVirtualFiles : AbstractVirtualPathProviderBase, IVirtualFiles
     {
         public CloudBlobContainer Container { get; }
 
@@ -20,7 +20,7 @@ namespace ServiceStack.Azure.Storage
 
         public override string RealPathSeparator => "/";
 
-        public AzureBlobVirtualPathProvider(CloudBlobContainer container)
+        public AzureBlobVirtualFiles(CloudBlobContainer container)
         {
             this.Container = container;
             this.Container.CreateIfNotExists();

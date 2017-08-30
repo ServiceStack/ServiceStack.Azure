@@ -24,7 +24,7 @@ namespace ServiceStack.Azure.Tests.Storage
         {
             var client = storageAccount.CreateCloudBlobClient();
             var container = client.GetContainerReference(ContainerName);
-            return new AzureBlobVirtualPathProvider(container);
+            return new AzureBlobVirtualFiles(container);
         }
 
         [SetUp]

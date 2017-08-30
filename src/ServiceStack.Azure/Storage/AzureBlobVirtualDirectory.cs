@@ -12,9 +12,9 @@ namespace ServiceStack.Azure.Storage
 {
     public class AzureBlobVirtualDirectory : AbstractVirtualDirectoryBase
     {
-        private readonly AzureBlobVirtualPathProvider pathProvider;
+        private readonly AzureBlobVirtualFiles pathProvider;
 
-        public AzureBlobVirtualDirectory(AzureBlobVirtualPathProvider pathProvider, string directoryPath)
+        public AzureBlobVirtualDirectory(AzureBlobVirtualFiles pathProvider, string directoryPath)
             : base(pathProvider)
         {
             this.pathProvider = pathProvider;
