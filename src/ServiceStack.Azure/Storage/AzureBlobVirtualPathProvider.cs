@@ -34,12 +34,14 @@ namespace ServiceStack.Azure.Storage
         public void WriteFile(string filePath, string textContents)
         {
             var blob = Container.GetBlockBlobReference(SanitizePath(filePath));
+            blob.Properties.ContentType = MimeTypes.GetMimeType(filePath);
             blob.UploadText(textContents);
         }
 
         public void WriteFile(string filePath, Stream stream)
         {
             var blob = Container.GetBlockBlobReference(SanitizePath(filePath));
+            blob.Properties.ContentType = MimeTypes.GetMimeType(filePath);
             blob.UploadFromStream(stream);
         }
 
