@@ -8,7 +8,7 @@ using ServiceStack.VirtualPath;
 
 namespace ServiceStack.Azure.Storage
 {
-    public class AzureBlobVirtualPathProvider : AbstractVirtualPathProviderBase, IVirtualFiles
+    public class AzureBlobVirtualFiles : AbstractVirtualPathProviderBase, IVirtualFiles
     {
         public CloudBlobContainer Container { get; }
 
@@ -20,7 +20,7 @@ namespace ServiceStack.Azure.Storage
 
         public override string RealPathSeparator => "/";
 
-        public AzureBlobVirtualPathProvider(CloudBlobContainer container)
+        public AzureBlobVirtualFiles(CloudBlobContainer container)
         {
             this.Container = container;
             this.Container.CreateIfNotExists();
@@ -34,12 +34,14 @@ namespace ServiceStack.Azure.Storage
         public void WriteFile(string filePath, string textContents)
         {
             var blob = Container.GetBlockBlobReference(SanitizePath(filePath));
+            blob.Properties.ContentType = MimeTypes.GetMimeType(filePath);
             blob.UploadText(textContents);
         }
 
         public void WriteFile(string filePath, Stream stream)
         {
             var blob = Container.GetBlockBlobReference(SanitizePath(filePath));
+            blob.Properties.ContentType = MimeTypes.GetMimeType(filePath);
             blob.UploadFromStream(stream);
         }
 
