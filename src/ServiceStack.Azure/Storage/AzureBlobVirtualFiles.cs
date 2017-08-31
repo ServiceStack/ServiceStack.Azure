@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using ServiceStack.VirtualPath;
 
@@ -20,11 +21,22 @@ namespace ServiceStack.Azure.Storage
 
         public override string RealPathSeparator => "/";
 
+        public AzureBlobVirtualFiles(string connectionString, string containerName)
+        {
+            var storageAccount = CloudStorageAccount.Parse(connectionString);
+
+            //containerName  is the name of Azure Storage Blob container
+            Container = storageAccount.CreateCloudBlobClient().GetContainerReference(containerName);
+            Container.CreateIfNotExists();
+            rootDirectory = new AzureBlobVirtualDirectory(this, null);
+        }
+
+
         public AzureBlobVirtualFiles(CloudBlobContainer container)
         {
-            this.Container = container;
-            this.Container.CreateIfNotExists();
-            this.rootDirectory = new AzureBlobVirtualDirectory(this, null);
+            Container = container;
+            Container.CreateIfNotExists();
+            rootDirectory = new AzureBlobVirtualDirectory(this, null);
         }
 
         protected override void Initialize()
