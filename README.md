@@ -38,16 +38,13 @@ You can use an Azure Blob Storage Container to serve website content with the **
         {
             //All Razor Views, Markdown Content, imgs, js, css, etc are served from an Azure Blob Storage container
 
-            //get azure storage account from Azure Storage connection string
-            // or you can use DevelopmentStorageAccount for testing purposes    
-            //var storageAccount = CloudStorageAccount.DevelopmentStorageAccount;
-            var storageAccount = CloudStorageAccount.Parse(connectionString);
+            //Use connection string to Azure Storage Emulator. For real application you should use connection string
+            //to your Azure Storage account
+            var azureBlobConnectionString = "UseDevelopmentStorage=true";
+            //Azure container which hold your files. If it does not exist it will be automatically created.
+            var containerName = "myazurecontainer";
 
-            //containerName  is the name of Azure Storage Blob container
-            var blobContainer = storageAccount.CreateCloudBlobClient().GetContainerReference(containerName);
-            blobContainer.CreateIfNotExists();
-
-            VirtualFiles = new AzureBlobVirtualPathProvider(blobContainer);
+            VirtualFiles = new AzureBlobVirtualFiles(connectionString, containerName);
         }
 
         public override List<IVirtualPathProvider> GetVirtualFileSources()
