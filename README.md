@@ -45,14 +45,7 @@ public class AppHost : AppHostBase
         var containerName = "myazurecontainer";
 
         VirtualFiles = new AzureBlobVirtualFiles(connectionString, containerName);
-    }
-
-    public override List<IVirtualPathProvider> GetVirtualFileSources()
-    {
-        //Add Azure Blob Container as lowest priority Virtual Path Provider 
-        var pathProviders = base.GetVirtualFileSources();
-        pathProviders.Add(VirtualFiles);
-        return pathProviders;
+        AddVirtualFileSources.Add(VirtualFiles);
     }
 }
 ```
