@@ -12,6 +12,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 using ServiceStack.DataAnnotations;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace ServiceStack.Azure.Storage
 {
@@ -111,11 +112,47 @@ namespace ServiceStack.Azure.Storage
 
         internal long AtomicIncDec(string key, long amount)
         {
-            var entry = GetEntry(key) ?? CreateTableEntry(key, Serialize<long>(0));
-            long count = Deserialize<long>(entry.Data) + amount;
-            entry.Data = Serialize<long>(count);
+            long count = 0;
+            bool updated = false;
 
-            SetInternal(key, entry);
+            ExecUtils.RetryUntilTrue(() =>
+            {
+                var entry = GetEntry(key);
+
+                if (entry == null)
+                {
+                    count = amount;
+                    entry = CreateTableEntry(key, Serialize(count));
+                    try
+                    {
+                        updated = table.Execute(TableOperation.Insert(entry)).HttpStatusCode == (int)HttpStatusCode.NoContent;
+                    }
+                    catch (StorageException ex)
+                    {
+                        if (!ex.InnerException.HasStatus(HttpStatusCode.Conflict))
+                            throw;
+                    }
+                }
+                else
+                {
+                    count = Deserialize<long>(entry.Data) + amount;
+                    entry.Data = Serialize<long>(count);
+                    var op = TableOperation.Replace(entry);
+                    try
+                    {
+                        var result = table.Execute(op).HttpStatusCode;
+                        updated = result == (int)HttpStatusCode.OK || result == (int)HttpStatusCode.NoContent;
+                    }
+                    catch (StorageException ex)
+                    {
+                        if (!ex.InnerException.HasStatus(HttpStatusCode.PreconditionFailed))
+                            throw;
+                    }
+                }
+
+                return updated;
+            }, TimeSpan.FromSeconds(30));
+
             return count;
         }
 
