@@ -14,24 +14,19 @@ namespace ServiceStack.Azure.Messaging
         private int retryCount = 1;
         public int RetryCount
         {
-            get
-            {
-                return retryCount;
-            }
+            get => retryCount;
             set
             {
                 if (value < 0) throw new ArgumentOutOfRangeException(nameof(retryCount));
                 retryCount = value;
             }
-
         }
 
 
         public ServiceBusMqServer(string connectionString)
         {
             this.connectionString = connectionString;
-            this.MessageFactory = new ServiceBusMqMessageFactory(connectionString);
-
+            MessageFactory = new ServiceBusMqMessageFactory(connectionString);
         }
 
 
@@ -53,22 +48,28 @@ namespace ServiceStack.Azure.Messaging
 
         private readonly Dictionary<Type, IMessageHandlerFactory> handlerMap = new Dictionary<Type, IMessageHandlerFactory>();
 
-        protected internal Dictionary<Type, IMessageHandlerFactory> HandlerMap
-        {
-            get { return handlerMap; }
-        }
+        protected internal Dictionary<Type, IMessageHandlerFactory> HandlerMap => handlerMap;
 
         //private readonly Dictionary<Type, int> handlerThreadCountMap
         //    = new Dictionary<Type, int>();
 
 
-        public List<Type> RegisteredTypes { get { return handlerMap.Keys.ToList(); } }
+        public List<Type> RegisteredTypes => handlerMap.Keys.ToList();
 
+        /// <summary>
+        /// Opt-in to only publish responses on this white list. 
+        /// Publishes all responses by default.
+        /// </summary>
+        public string[] PublishResponsesWhitelist { get; set; }
+
+        public bool DisablePublishingResponses
+        {
+            set => PublishResponsesWhitelist = value ? TypeConstants.EmptyStringArray : null;
+        }
 
         public void Dispose()
         {
-            (this.MessageFactory as ServiceBusMqMessageFactory).StopQueues();
-            //throw new NotImplementedException();
+            (MessageFactory as ServiceBusMqMessageFactory)?.StopQueues();
         }
 
         public IMessageHandlerStats GetStats()
@@ -90,7 +91,6 @@ namespace ServiceStack.Azure.Messaging
         {
             RegisterHandler(processMessageFn, null, noOfThreads: 1);
         }
-
 
         public void RegisterHandler<T>(Func<IMessage<T>, object> processMessageFn, int noOfThreads)
         {
@@ -121,20 +121,20 @@ namespace ServiceStack.Azure.Messaging
             {
                 RequestFilter = this.RequestFilter,
                 ResponseFilter = this.ResponseFilter,
-                RetryCount = this.RetryCount
+                RetryCount = this.RetryCount,
+                PublishResponsesWhitelist = PublishResponsesWhitelist
             };
         }
-
 
         public void Start()
         {
             // Create the queues (if they don't exist) and start the listeners
-            ((ServiceBusMqMessageFactory)this.MessageFactory).StartQueues(this.handlerMap);
+            ((ServiceBusMqMessageFactory)MessageFactory).StartQueues(this.handlerMap);
         }
 
         public void Stop()
         {
-            throw new NotImplementedException();
+            ((ServiceBusMqMessageFactory)MessageFactory).StopQueues();
         }
     }
 }
