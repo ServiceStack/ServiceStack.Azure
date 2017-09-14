@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using ServiceStack.Messaging;
 using ServiceStack.Text;
@@ -14,7 +15,7 @@ namespace ServiceStack.Azure.Messaging
 {
     public class ServiceBusMqMessageProducer : IMessageProducer
     {
-        private readonly Dictionary<string, QueueClient> sbClients = new Dictionary<string, QueueClient>();
+        private readonly ConcurrentDictionary<string, QueueClient> sbClients = new ConcurrentDictionary<string, QueueClient>();
         private readonly Dictionary<string, MessageReceiver> sbReceivers = new Dictionary<string, MessageReceiver>();
         private readonly ServiceBusMqMessageFactory parentFactory;
 
@@ -122,7 +123,7 @@ namespace ServiceStack.Azure.Messaging
             var sbClient = QueueClient.CreateFromConnectionString(parentFactory.address, qd.Path);
 #endif
 
-            sbClients.Add(queueName, sbClient);
+            sbClient = sbClients.GetOrAdd(queueName, sbClient);
             return sbClient;
         }
     }

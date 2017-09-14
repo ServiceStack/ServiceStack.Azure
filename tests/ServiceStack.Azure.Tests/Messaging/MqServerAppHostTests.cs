@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Funq;
+using Microsoft.WindowsAzure.Storage.Queue.Protocol;
 using NUnit.Framework;
 using ServiceStack.Azure.Messaging;
 using ServiceStack.Configuration;
@@ -388,5 +390,31 @@ namespace ServiceStack.Azure.Tests.Messaging
                 }
             }
         }
+
+        [Test]
+        public void Can_Publish_In_Parallel()
+        {
+            using (var mqFactory = appHost.TryResolve<IMessageFactory>())
+            {
+                using (var mqProducer = mqFactory.CreateMessageProducer())
+                {
+                    var range = Enumerable.Range(1, 1000);
+
+                    Parallel.For(0, range.Last(),
+                        index =>
+                        {
+                            mqProducer.Publish<QueueMessage>(
+                                new QueueMessage {Id = index + 20000, BodyHtml = "test"});
+                        });
+                }
+            }
+        }
+    }
+
+    public class QueueMessage
+    {
+        public int Id { get; set; }
+
+        public string BodyHtml { get; set; }
     }
 }
