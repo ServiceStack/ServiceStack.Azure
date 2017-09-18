@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Funq;
 using Microsoft.WindowsAzure.Storage.Queue.Protocol;
@@ -137,11 +138,18 @@ namespace ServiceStack.Azure.Tests.Messaging
         {
             throw new ArgumentException("request");
         }
+
+        public void Post(QueueMessage request)
+        {
+        }
+
     }
 
     public class MqTestsAppHost : AppHostHttpListenerBase
     {
         private readonly Func<IMessageService> createMqServerFn;
+        private int count = 0;
+        public ManualResetEvent evt = new ManualResetEvent(false);
 
         public MqTestsAppHost(Func<IMessageService> createMqServerFn)
             : base("Service Name", typeof(AnyTestMq).GetAssembly())
@@ -166,6 +174,16 @@ namespace ServiceStack.Azure.Tests.Messaging
             mqServer.RegisterHandler<PostTestMq>(ServiceController.ExecuteMessage);
             mqServer.RegisterHandler<ValidateTestMq>(ServiceController.ExecuteMessage);
             mqServer.RegisterHandler<ThrowGenericError>(ServiceController.ExecuteMessage);
+
+
+            mqServer.RegisterHandler<QueueMessage>(m =>
+            {
+                Interlocked.Increment(ref count);
+                var result = ServiceController.ExecuteMessage(m);
+                if (count == 200) //check for .inq and .outq queues
+                    evt.Set();
+                return result;
+            });
 
             mqServer.Start();
         }
@@ -394,9 +412,35 @@ namespace ServiceStack.Azure.Tests.Messaging
         [Test]
         public void Can_Publish_In_Parallel()
         {
+            new Thread(_ =>
+            {
+                using (var mqFactory = appHost.TryResolve<IMessageFactory>())
+                {
+                    using (var mqProducer = mqFactory.CreateMessageProducer())
+                    {
+                        var range = Enumerable.Range(1, 100);
+
+                        Parallel.For(0, range.Last(),
+                            index =>
+                            {
+                                mqProducer.Publish<QueueMessage>(
+                                    new QueueMessage {Id = index + 20000, BodyHtml = "test"});
+                            });
+                    }
+                }
+            }).Start();
+
+            ((MqTestsAppHost)appHost).evt.WaitOne();
+        }
+
+        [Test]
+        [Explicit]
+        public void CheckPerf()
+        {
             using (var mqFactory = appHost.TryResolve<IMessageFactory>())
             {
                 using (var mqProducer = mqFactory.CreateMessageProducer())
+                using (var mqClient = mqFactory.CreateMessageQueueClient())
                 {
                     var range = Enumerable.Range(1, 1000);
 
@@ -406,9 +450,16 @@ namespace ServiceStack.Azure.Tests.Messaging
                             mqProducer.Publish<QueueMessage>(
                                 new QueueMessage {Id = index + 20000, BodyHtml = "test"});
                         });
+
+                    IMessage<QueueMessage> msg;
+                    while ((msg = mqClient.Get<QueueMessage>(QueueNames<QueueMessage>.In, null)) != null)
+                    {
+                        mqClient.Ack(msg);
+                    }
                 }
             }
         }
+
     }
 
     public class QueueMessage

@@ -116,9 +116,9 @@ namespace ServiceStack.Azure.Messaging
         {
             return new MessageHandlerFactory<T>(this, processMessageFn, processExceptionEx)
             {
-                RequestFilter = this.RequestFilter,
-                ResponseFilter = this.ResponseFilter,
-                RetryCount = this.RetryCount,
+                RequestFilter = RequestFilter,
+                ResponseFilter = ResponseFilter,
+                RetryCount = RetryCount,
                 PublishResponsesWhitelist = PublishResponsesWhitelist
             };
         }

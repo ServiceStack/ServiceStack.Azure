@@ -16,6 +16,8 @@ namespace ServiceStack.Azure.Messaging
 {
     public class ServiceBusMqClient : ServiceBusMqMessageProducer, IMessageQueueClient, IOneWayClient
     {
+        internal const string LockTokenMeta = "LockToken";
+        internal const string QueueNameMeta = "QueueName";
 
         protected internal ServiceBusMqClient(ServiceBusMqMessageFactory parentFactory)
             : base(parentFactory)
@@ -25,7 +27,31 @@ namespace ServiceStack.Azure.Messaging
 
         public void Ack(IMessage message)
         {
-            // Message is automatically dequeued at Get<>
+            if (message == null)
+                return;
+
+            if (message.Meta == null || !message.Meta.ContainsKey(LockTokenMeta))
+                throw new ArgumentException(LockTokenMeta);
+
+            if (!message.Meta.ContainsKey(QueueNameMeta))
+                throw new ArgumentException(QueueNameMeta);
+
+            var lockToken = message.Meta[LockTokenMeta];
+            var queueName = message.Meta[QueueNameMeta];
+
+            var sbClient = GetOrCreateClient(queueName);
+            try
+            {
+#if NETSTANDARD1_6
+                sbClient.CompleteAsync(lockToken).Wait();
+#else
+                sbClient.Complete(Guid.Parse(lockToken));
+#endif
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         public IMessage<T> CreateMessage<T>(object mqResponse)
@@ -55,18 +81,30 @@ namespace ServiceStack.Azure.Messaging
         public IMessage<T> Get<T>(string queueName, TimeSpan? timeout = default(TimeSpan?))
         {
             var sbClient = GetOrCreateClient(queueName);
+            string lockToken = null;
+
 #if NETSTANDARD1_6
             var msg = sbClient.ReceiveAsync(timeout).Result;
             if (msg != null)
-                sbClient.CompleteAsync(msg.SystemProperties.LockToken).Wait();
+             lockToken = msg.SystemProperties.LockToken;
 #else
             var msg = timeout.HasValue
                 ? sbClient.Receive(timeout.Value)
                 : sbClient.Receive();
+            if (msg != null)
+                lockToken = msg.LockToken.ToString();
 #endif
 
 
-            return CreateMessage<T>(msg);
+            var iMessage = CreateMessage<T>(msg);
+            if (iMessage != null)
+            {
+                iMessage.Meta = new Dictionary<string, string>();
+                iMessage.Meta[LockTokenMeta] = lockToken;
+                iMessage.Meta[QueueNameMeta] = queueName;
+            }
+
+            return iMessage;
         }
 
 #if NETSTANDARD1_6
@@ -112,10 +150,7 @@ namespace ServiceStack.Azure.Messaging
         }
 #endif
 
-        public IMessage<T> GetAsync<T>(string queueName)
-        {
-            throw new NotImplementedException();
-        }
+        public IMessage<T> GetAsync<T>(string queueName) => Get<T>(queueName);
 
         public string GetTempQueueName()
         {

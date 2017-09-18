@@ -37,13 +37,20 @@ namespace ServiceStack.Azure.Messaging
         {
             var strMessage = Encoding.UTF8.GetString(msg.Body);
             IMessage iMessage = (IMessage)JsonSerializer.DeserializeFromString(strMessage, typeof(IMessage));
+            if (iMessage != null)
+            {
+                iMessage.Meta = new Dictionary<string, string>();
+                iMessage.Meta[ServiceBusMqClient.LockTokenMeta] = msg.SystemProperties.LockToken;
+                iMessage.Meta[ServiceBusMqClient.QueueNameMeta] = queueName;
+            }
+
             Type msgType = iMessage.GetType().GetGenericArguments()[0];
             var messageHandlerFactory = mqMessageFactory.handlerMap[msgType];
             var messageHandler = messageHandlerFactory.CreateMessageHandler();
 
             messageHandler.ProcessMessage(mqClient, iMessage);
 
-            await sbClient.CompleteAsync(msg.SystemProperties.LockToken);
+            //await sbClient.CompleteAsync(msg.SystemProperties.LockToken);
         }
 #else
         public void HandleMessage(BrokeredMessage msg)
@@ -52,20 +59,21 @@ namespace ServiceStack.Azure.Messaging
             {
                 string strMessage = msg.GetBody<string>();
                 IMessage iMessage = (IMessage)JsonSerializer.DeserializeFromString(strMessage, typeof(IMessage));
+                if (iMessage != null)
+                {
+                    iMessage.Meta = new Dictionary<string, string>();
+                    iMessage.Meta[ServiceBusMqClient.LockTokenMeta] = msg.LockToken.ToString();
+                    iMessage.Meta[ServiceBusMqClient.QueueNameMeta] = queueName;
+                }
                 Type msgType = iMessage.GetType().GetGenericArguments()[0];
                 var messageHandlerFactory = mqMessageFactory.handlerMap[msgType];
                 var messageHandler = messageHandlerFactory.CreateMessageHandler();
 
                 messageHandler.ProcessMessage(mqClient, iMessage);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 throw;
-            }
-            finally
-            {
-                msg.Complete(); // Release message from Azure service-bus; we received it, but internally weren't able to process it.  
-                                // Its the handler's fault, not the ServiceBus
             }
         }
 #endif
