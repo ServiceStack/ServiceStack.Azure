@@ -23,12 +23,11 @@ namespace ServiceStack.Azure.Messaging
         Dictionary<string, Type> queueMap;
 
         // A list of all Service Bus QueueClients - one per type & queue (priorityq, inq, outq, and dlq)
-        private readonly Dictionary<string, QueueClient> sbClients;
+        private readonly Dictionary<string, QueueClient> sbClients = new Dictionary<string, QueueClient>();
 
         public ServiceBusMqMessageFactory(string address)
         {
             this.address = address;
-            this.sbClients = new Dictionary<string, QueueClient>();
 #if !NETSTANDARD1_6
             this.namespaceManager = NamespaceManager.CreateFromConnectionString(address);
 #endif

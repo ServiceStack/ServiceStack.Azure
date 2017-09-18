@@ -9,8 +9,6 @@ namespace ServiceStack.Azure.Messaging
 {
     public class ServiceBusMqServer : IMessageService
     {
-        private readonly string connectionString;
-
         private int retryCount = 1;
         public int RetryCount
         {
@@ -25,12 +23,11 @@ namespace ServiceStack.Azure.Messaging
 
         public ServiceBusMqServer(string connectionString)
         {
-            this.connectionString = connectionString;
             MessageFactory = new ServiceBusMqMessageFactory(connectionString);
         }
 
 
-        public IMessageFactory MessageFactory { get; private set; }
+        public IMessageFactory MessageFactory { get; }
 
         public Func<string, IOneWayClient> ReplyClientFactory { get; set; }
 
