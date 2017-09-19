@@ -8,6 +8,7 @@ ServiceStack.Azure includes implementation of the following ServiceStack provide
 
 - [ServiceBusMqServer](#ServiceBusMqServer) - [MQ Server](http://docs.servicestack.net/messaging) for invoking ServiceStack Services via Azure ServiceBus
 - [AzureBlobVirtualFiles](#virtual-filesystem-backed-by-azure-blob-storage) - Virtual file system based on Azure Blob Storage
+- [AzureAppendBlobVirtualFiles](#virtual-filesystem-backed-by-azure-blob-storage) - Virtual file system based on Azure Blob Storage for appending scenarios
 - [AzureTableCacheClient](#caching-support-with-azure-table-storage) - Cache client over Azure Table Storage
 
 
@@ -46,6 +47,26 @@ public class AppHost : AppHostBase
 
         VirtualFiles = new AzureBlobVirtualFiles(connectionString, containerName);
         AddVirtualFileSources.Add(VirtualFiles);
+    }
+}
+```
+
+In addition you can use **AzureAppendBlobVirtualFiles** in scenarios that require appending such as logging. 
+
+```csharp
+public class AppHost : AppHostBase
+{
+    public override void Configure(Container container)
+    {
+      Plugins.Add(new RequestLogsFeature
+      {
+        RequestLogger = new CsvRequestLogger(
+        files: new AzureAppendBlobVirtualFiles(AppSettings.Get<string>("storageConnection"), "logfiles"),
+        requestLogsPattern: "requestlogs/{year}-{month}/{year}-{month}-{day}.csv",
+        errorLogsPattern: "requestlogs/{year}-{month}/{year}-{month}-{day}-errors.csv",
+        appendEvery: TimeSpan.FromSeconds(30))
+                
+       });
     }
 }
 ```
