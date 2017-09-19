@@ -35,7 +35,7 @@ namespace ServiceStack.Azure.Messaging
 #if NETSTANDARD1_6
         public async Task HandleMessageAsync(Microsoft.Azure.ServiceBus.Message msg, CancellationToken token)
         {
-            var strMessage = Encoding.UTF8.GetString(msg.Body);
+            var strMessage = msg.GetBodyString();
             IMessage iMessage = (IMessage)JsonSerializer.DeserializeFromString(strMessage, typeof(IMessage));
             if (iMessage != null)
             {

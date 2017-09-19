@@ -62,7 +62,7 @@ namespace ServiceStack.Azure.Messaging
 #if NETSTANDARD1_6
             var msg = mqResponse as Microsoft.Azure.ServiceBus.Message;
             if (msg == null) return null;
-            var msgBody = Encoding.UTF8.GetString(msg.Body);
+            var msgBody = msg.GetBodyString();
 #else
             var msg = mqResponse as BrokeredMessage;
             if (msg == null) return null;
