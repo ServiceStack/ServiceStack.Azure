@@ -118,6 +118,7 @@ namespace ServiceStack.Azure.Messaging
 #else
             sbClients.Each(kvp => kvp.Value.Close());
 #endif
+            sbClients.Clear();
         }
 
         protected internal QueueClient GetOrCreateClient(string queueName)

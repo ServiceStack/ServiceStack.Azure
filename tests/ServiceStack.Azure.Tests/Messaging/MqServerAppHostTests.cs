@@ -180,7 +180,7 @@ namespace ServiceStack.Azure.Tests.Messaging
             {
                 Interlocked.Increment(ref count);
                 var result = ServiceController.ExecuteMessage(m);
-                if (count == 200) //check for .inq and .outq queues
+                if (count == 100)
                     evt.Set();
                 return result;
             });
