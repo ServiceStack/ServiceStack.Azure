@@ -49,8 +49,6 @@ namespace ServiceStack.Azure.Messaging
             var messageHandler = messageHandlerFactory.CreateMessageHandler();
 
             messageHandler.ProcessMessage(mqClient, iMessage);
-
-            //await sbClient.CompleteAsync(msg.SystemProperties.LockToken);
         }
 #else
         public void HandleMessage(BrokeredMessage msg)

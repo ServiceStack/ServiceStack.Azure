@@ -39,7 +39,7 @@ namespace ServiceStack.Azure.Messaging
             var lockToken = message.Meta[LockTokenMeta];
             var queueName = message.Meta[QueueNameMeta];
 
-            var sbClient = GetOrCreateClient(queueName);
+            var sbClient = parentFactory.GetOrCreateClient(queueName);
             try
             {
 #if NETSTANDARD1_6
@@ -80,7 +80,7 @@ namespace ServiceStack.Azure.Messaging
 
         public IMessage<T> Get<T>(string queueName, TimeSpan? timeout = default(TimeSpan?))
         {
-            var sbClient = GetOrCreateClient(queueName);
+            var sbClient = parentFactory.GetOrCreateClient(queueName);
             string lockToken = null;
 
 #if NETSTANDARD1_6

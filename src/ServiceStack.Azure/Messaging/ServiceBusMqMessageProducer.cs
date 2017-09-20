@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using ServiceStack.Messaging;
 using ServiceStack.Text;
@@ -15,9 +14,8 @@ namespace ServiceStack.Azure.Messaging
 {
     public class ServiceBusMqMessageProducer : IMessageProducer
     {
-        private readonly ConcurrentDictionary<string, QueueClient> sbClients = new ConcurrentDictionary<string, QueueClient>();
         private readonly Dictionary<string, MessageReceiver> sbReceivers = new Dictionary<string, MessageReceiver>();
-        private readonly ServiceBusMqMessageFactory parentFactory;
+        protected readonly ServiceBusMqMessageFactory parentFactory;
 
         protected internal ServiceBusMqMessageProducer(ServiceBusMqMessageFactory parentFactory)
         {
@@ -31,14 +29,7 @@ namespace ServiceStack.Azure.Messaging
 
         public void StopClients()
         {
-            foreach (string queue in sbClients.Keys)
-            {
-#if NETSTANDARD1_6
-                sbClients[queue].CloseAsync();
-#else
-                sbClients[queue].Close();
-#endif
-            }
+            //parentFactory.StopQueues();
         }
 
         public void Publish<T>(T messageBody)
@@ -63,7 +54,7 @@ namespace ServiceStack.Azure.Messaging
 
         public virtual void Publish(string queueName, IMessage message)
         {
-            var sbClient = GetOrCreateClient(queueName);
+            var sbClient = parentFactory.GetOrCreateClient(queueName);
             using (JsConfig.With(includeTypeInfo: true))
             {
                 var msgBody = JsonSerializer.SerializeToString(message, typeof(IMessage));
@@ -101,31 +92,6 @@ namespace ServiceStack.Azure.Messaging
             return messageReceiver;
         }
 #endif
-
-        protected QueueClient GetOrCreateClient(string queueName)
-        {
-            if (queueName.StartsWith(QueueNames.MqPrefix))
-                queueName = queueName.ReplaceFirst(QueueNames.MqPrefix, "");
-
-            if (sbClients.ContainsKey(queueName))
-                return sbClients[queueName];
-
-#if !NETSTANDARD1_6
-            // Create queue on ServiceBus namespace if it doesn't exist
-            QueueDescription qd = new QueueDescription(queueName);
-            if (!parentFactory.namespaceManager.QueueExists(queueName))
-                parentFactory.namespaceManager.CreateQueue(qd);
-#endif
-
-#if NETSTANDARD1_6
-            var sbClient = new QueueClient(parentFactory.address, queueName);
-#else
-            var sbClient = QueueClient.CreateFromConnectionString(parentFactory.address, qd.Path);
-#endif
-
-            sbClient = sbClients.GetOrAdd(queueName, sbClient);
-            return sbClient;
-        }
     }
 
 }
