@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Blob.Protocol;
+using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace ServiceStack.Azure.Storage
@@ -35,17 +36,23 @@ namespace ServiceStack.Azure.Storage
             container.CreateIfNotExistsAsync().Wait();
         }
 
+
         public static void DeleteIfExists(this CloudBlobContainer container)
         {
             container.DeleteIfExistsAsync().Wait();
         }
 
-        public static void Delete(this CloudBlockBlob blob)
+        public static void CreateOrReplace(this CloudAppendBlob blob, AccessCondition condition, BlobRequestOptions options, OperationContext operationContext) {
+          blob.CreateOrReplaceAsync(condition, options, operationContext).Wait();
+        }
+
+
+        public static void Delete(this ICloudBlob blob)
         {
             blob.DeleteAsync().Wait();
         }
 
-        public static void DeleteIfExists(this CloudBlockBlob blob)
+        public static void DeleteIfExists(this ICloudBlob blob)
         {
             blob.DeleteIfExistsAsync().Wait();
         }
@@ -60,12 +67,22 @@ namespace ServiceStack.Azure.Storage
             blob.UploadFromStreamAsync(stream).Wait();
         }
 
-        public static Stream OpenRead(this CloudBlockBlob blob)
+         public static void AppendText(this CloudAppendBlob blob, string content)
+        {
+           ((CloudAppendBlob) blob).AppendTextAsync(content).Wait();
+        }
+
+         public static void AppendFromStream(this CloudAppendBlob blob, Stream stream)
+        {
+           ((CloudAppendBlob) blob).AppendFromStreamAsync(stream).Wait();
+        }
+
+        public static Stream OpenRead(this CloudBlob blob)
         {
             return blob.OpenReadAsync().Result;
         }
 
-        public static bool Exists(this CloudBlockBlob blob)
+        public static bool Exists(this CloudBlob blob)
         {
             return blob.ExistsAsync().Result;
         }

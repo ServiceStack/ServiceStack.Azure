@@ -14,17 +14,18 @@ namespace ServiceStack.Azure.Tests.Storage
 {
 
     [TestFixture]
-    public class AzureBlobVirtualPathProviderTests : VirtualPathProviderTests
+    public class AzureAppendBlobVirtualPathProviderTests : VirtualAppendPathProviderTests
     {
-        public const string ContainerName = "ss-ci-test";
+        public const string ContainerName = "ss-ci-test-append";
 
-        private readonly CloudStorageAccount storageAccount = CloudStorageAccount.DevelopmentStorageAccount;
+        // you must provide an azure account to run these tests
+        private readonly CloudStorageAccount storageAccount = CloudStorageAccount.Parse("");
 
         public override IVirtualPathProvider GetPathProvider()
         {
             var client = storageAccount.CreateCloudBlobClient();
             var container = client.GetContainerReference(ContainerName);
-            return new AzureBlobVirtualFiles(container);
+            return new AzureAppendBlobVirtualFiles(container);
         }
 
         [OneTimeSetUp]
@@ -44,7 +45,7 @@ namespace ServiceStack.Azure.Tests.Storage
         {
             var pathProvider = GetPathProvider();
 
-            int count = 200;
+            int count = 20;  
             count.Times(i =>
             {
                 var filePath = "file-{0}.txt".Fmt(i);
@@ -52,47 +53,21 @@ namespace ServiceStack.Azure.Tests.Storage
             });
 
             Assert.That(pathProvider.RootDirectory.Files.Count, Is.EqualTo(count));
-
-            // clean them up or future tests might fail
             count.Times(i =>
             {
                 var filePath = "file-{0}.txt".Fmt(i);
                 pathProvider.DeleteFile(filePath);
             });
 
+            
+
         }
 
     }
 
 
-    [TestFixture]
-    public class InMemoryVirtualPathProviderTests : VirtualPathProviderTests
-    {
-        public override IVirtualPathProvider GetPathProvider()
-        {
-            return new MemoryVirtualFiles();
-        }
-    }
-
-
-    [TestFixture]
-    public class FileSystemVirtualPathProviderTests : VirtualPathProviderTests
-    {
-        private static string RootDir = "~/App_Data".MapProjectPath();
-
-        public FileSystemVirtualPathProviderTests()
-        {
-            if (!Directory.Exists(RootDir))
-                Directory.CreateDirectory(RootDir);
-        }
-
-        public override IVirtualPathProvider GetPathProvider()
-        {
-            return new FileSystemVirtualFiles(RootDir);
-        }
-    }
-
-    public abstract class VirtualPathProviderTests
+   
+    public abstract class VirtualAppendPathProviderTests
     {
         public abstract IVirtualPathProvider GetPathProvider();
 
@@ -136,7 +111,7 @@ namespace ServiceStack.Azure.Tests.Storage
         }
 
         [Test]
-        [Ignore("Does not work with Azure Storage emulator")]
+        
         public void Does_refresh_LastModified()
         {
             var pathProvider = GetPathProvider();
@@ -331,11 +306,11 @@ namespace ServiceStack.Azure.Tests.Storage
         }
 
         [Test]
-        [Ignore("Not supported on Azure Block Blobs")]
+        
         public void Does_append_to_file()
         {
             var pathProvider = GetPathProvider();
-            pathProvider.DeleteFile("original.txt");
+            
             pathProvider.WriteFile("original.txt", "original\n");
 
             pathProvider.AppendFile("original.txt", "New Line1\n");
@@ -348,11 +323,11 @@ namespace ServiceStack.Azure.Tests.Storage
         }
 
         [Test]
-        [Ignore("Not supported on Azure Block Blobs")]
+        
         public void Does_append_to_file_bytes()
         {
             var pathProvider = GetPathProvider();
-            pathProvider.DeleteFile("original.bin");
+            
             pathProvider.WriteFile("original.bin", "original\n".ToUtf8Bytes());
 
             pathProvider.AppendFile("original.bin", "New Line1\n".ToUtf8Bytes());
