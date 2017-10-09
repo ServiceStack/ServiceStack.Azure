@@ -3,7 +3,7 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
-#if NETSTANDARD1_6
+#if NETSTANDARD2_0
 using Microsoft.Azure.ServiceBus;
 #else
 using Microsoft.ServiceBus;
@@ -16,7 +16,7 @@ namespace ServiceStack.Azure.Messaging
     public class ServiceBusMqMessageFactory : IMessageFactory
     {
         protected internal readonly string address;
-#if !NETSTANDARD1_6
+#if !NETSTANDARD2_0
         protected internal readonly NamespaceManager namespaceManager;
 #endif
 
@@ -29,7 +29,7 @@ namespace ServiceStack.Azure.Messaging
         public ServiceBusMqMessageFactory(string address)
         {
             this.address = address;
-#if !NETSTANDARD1_6
+#if !NETSTANDARD2_0
             this.namespaceManager = NamespaceManager.CreateFromConnectionString(address);
 #endif
         }
@@ -65,7 +65,7 @@ namespace ServiceStack.Azure.Messaging
 
                     if (!queueMap.ContainsKey(queueName))
                         queueMap.Add(queueName, type);
-#if !NETSTANDARD1_6
+#if !NETSTANDARD2_0
                     QueueDescription qd = new QueueDescription(queueName);
                     if (!namespaceManager.QueueExists(queueName))
                         namespaceManager.CreateQueue(qd);
@@ -79,7 +79,7 @@ namespace ServiceStack.Azure.Messaging
 
         private void AddQueueHandler(string queueName)
         {
-#if NETSTANDARD1_6
+#if NETSTANDARD2_0
             var sbClient = new QueueClient(address, queueName, ReceiveMode.PeekLock);
             var sbWorker = new ServiceBusMqWorker(this, CreateMessageQueueClient(), queueName, sbClient);
             sbClient.RegisterMessageHandler(sbWorker.HandleMessageAsync,
@@ -113,7 +113,7 @@ namespace ServiceStack.Azure.Messaging
 
         protected internal void StopQueues()
         {
-#if NETSTANDARD1_6
+#if NETSTANDARD2_0
             sbClients.Each(async kvp => await kvp.Value.CloseAsync());
 #else
             sbClients.Each(kvp => kvp.Value.Close());
@@ -129,14 +129,14 @@ namespace ServiceStack.Azure.Messaging
             if (sbClients.ContainsKey(queueName))
                 return sbClients[queueName];
 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD2_0
             // Create queue on ServiceBus namespace if it doesn't exist
             QueueDescription qd = new QueueDescription(queueName);
             if (!namespaceManager.QueueExists(queueName))
                 namespaceManager.CreateQueue(qd);
 #endif
 
-#if NETSTANDARD1_6
+#if NETSTANDARD2_0
             var sbClient = new QueueClient(address, queueName);
 #else
             var sbClient = QueueClient.CreateFromConnectionString(address, qd.Path);

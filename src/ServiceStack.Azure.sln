@@ -5,12 +5,19 @@ VisualStudioVersion = 15.0.26403.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Azure.Tests", "..\tests\ServiceStack.Azure.Tests\ServiceStack.Azure.Tests.csproj", "{6DC5FB0E-DEE0-42BC-9FEE-23DCED1223E4}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3C21FC51-813A-45BE-ABB1-C352C8B35AA0}"
-	ProjectSection(SolutionItems) = preProject
-		..\README.md = ..\README.md
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Azure", "ServiceStack.Azure\ServiceStack.Azure.csproj", "{EB41D580-F1DA-4FEF-A3C7-9BE53238821E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{DCEE435D-CE08-47B9-9CDB-C1D88CFF566B}"
+ProjectSection(SolutionItems) = preProject
+	..\README.md = ..\README.md
+	..\build\build-core.proj = ..\build\build-core.proj
+	..\build\build-sn.proj = ..\build\build-sn.proj
+	..\build\build.bat = ..\build\build.bat
+	..\build\build.proj = ..\build\build.proj
+	..\NuGet\ServiceStack.Azure\servicestack.azure.nuspec = ..\NuGet\ServiceStack.Azure\servicestack.azure.nuspec
+	..\NuGet.Core\ServiceStack.Azure.Core\servicestack.azure.core.nuspec = ..\NuGet.Core\ServiceStack.Azure.Core\servicestack.azure.core.nuspec
+	..\NuGet.Signed\ServiceStack.Azure.Signed\servicestack.azure.signed.csproj = ..\NuGet.Signed\ServiceStack.Azure.Signed\servicestack.azure.signed.csproj
+EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

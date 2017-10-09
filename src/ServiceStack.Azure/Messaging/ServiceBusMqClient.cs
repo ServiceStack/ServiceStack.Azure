@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-#if NETSTANDARD1_6
+#if NETSTANDARD2_0
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Core;
 #else
@@ -42,7 +42,7 @@ namespace ServiceStack.Azure.Messaging
             var sbClient = parentFactory.GetOrCreateClient(queueName);
             try
             {
-#if NETSTANDARD1_6
+#if NETSTANDARD2_0
                 sbClient.CompleteAsync(lockToken).Wait();
 #else
                 sbClient.Complete(Guid.Parse(lockToken));
@@ -59,7 +59,7 @@ namespace ServiceStack.Azure.Messaging
             if (mqResponse is IMessage)
                 return (IMessage<T>)mqResponse;
 
-#if NETSTANDARD1_6
+#if NETSTANDARD2_0
             var msg = mqResponse as Microsoft.Azure.ServiceBus.Message;
             if (msg == null) return null;
             var msgBody = msg.GetBodyString();
@@ -83,7 +83,7 @@ namespace ServiceStack.Azure.Messaging
             var sbClient = parentFactory.GetOrCreateClient(queueName);
             string lockToken = null;
 
-#if NETSTANDARD1_6
+#if NETSTANDARD2_0
             var msg = sbClient.ReceiveAsync(timeout).Result;
             if (msg != null)
              lockToken = msg.SystemProperties.LockToken;
@@ -107,7 +107,7 @@ namespace ServiceStack.Azure.Messaging
             return iMessage;
         }
 
-#if NETSTANDARD1_6
+#if NETSTANDARD2_0
         private async Task<Microsoft.Azure.ServiceBus.Message> GetMessageFromReceiver(MessageReceiver messageReceiver, TimeSpan? timeout)
         {
             var msg = timeout.HasValue

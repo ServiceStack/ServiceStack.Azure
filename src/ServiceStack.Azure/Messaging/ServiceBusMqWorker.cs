@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-#if NETSTANDARD1_6
+#if NETSTANDARD2_0
 using Microsoft.Azure.ServiceBus;
 #else
 using Microsoft.ServiceBus.Messaging;
@@ -32,7 +32,7 @@ namespace ServiceStack.Azure.Messaging
             this.sbClient = sbClient;
         }
 
-#if NETSTANDARD1_6
+#if NETSTANDARD2_0
         public async Task HandleMessageAsync(Microsoft.Azure.ServiceBus.Message msg, CancellationToken token)
         {
             var strMessage = msg.GetBodyString();

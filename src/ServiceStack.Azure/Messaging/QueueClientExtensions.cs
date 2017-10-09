@@ -1,4 +1,4 @@
-#if NETSTANDARD1_6
+#if NETSTANDARD2_0
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Core;
 using System.Threading.Tasks;

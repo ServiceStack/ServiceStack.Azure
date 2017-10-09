@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using ServiceStack.Messaging;
 using ServiceStack.Text;
-#if NETSTANDARD1_6
+#if NETSTANDARD2_0
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Core;
 #else
@@ -58,7 +58,7 @@ namespace ServiceStack.Azure.Messaging
             using (JsConfig.With(includeTypeInfo: true))
             {
                 var msgBody = JsonSerializer.SerializeToString(message, typeof(IMessage));
-#if NETSTANDARD1_6
+#if NETSTANDARD2_0
                 var msg = new Microsoft.Azure.ServiceBus.Message()
                 {
                     Body = msgBody.ToUtf8Bytes(),
@@ -74,7 +74,7 @@ namespace ServiceStack.Azure.Messaging
             }
         }
 
-#if NETSTANDARD1_6
+#if NETSTANDARD2_0
         protected MessageReceiver GetOrCreateMessageReceiver(string queueName)
         {
             if (queueName.StartsWith(QueueNames.MqPrefix))
