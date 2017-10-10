@@ -11,12 +11,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{DCEE435D
 ProjectSection(SolutionItems) = preProject
 	..\README.md = ..\README.md
 	..\build\build-core.proj = ..\build\build-core.proj
-	..\build\build-sn.proj = ..\build\build-sn.proj
 	..\build\build.bat = ..\build\build.bat
 	..\build\build.proj = ..\build\build.proj
 	..\NuGet\ServiceStack.Azure\servicestack.azure.nuspec = ..\NuGet\ServiceStack.Azure\servicestack.azure.nuspec
 	..\NuGet.Core\ServiceStack.Azure.Core\servicestack.azure.core.nuspec = ..\NuGet.Core\ServiceStack.Azure.Core\servicestack.azure.core.nuspec
-	..\NuGet.Signed\ServiceStack.Azure.Signed\servicestack.azure.signed.csproj = ..\NuGet.Signed\ServiceStack.Azure.Signed\servicestack.azure.signed.csproj
 EndProjectSection
 EndProject
 Global
