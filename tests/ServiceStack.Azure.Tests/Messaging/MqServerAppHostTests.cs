@@ -28,7 +28,7 @@ namespace ServiceStack.Azure.Tests.Messaging
         {
             get
             {
-                var assembly = typeof(AzureServiceBusMqServerAppHostTests).GetAssembly();
+                var assembly = typeof(AzureServiceBusMqServerAppHostTests).Assembly;
                 var path = new Uri(assembly.CodeBase).LocalPath;
                 var configFile = Path.Combine(Path.GetDirectoryName(path), "settings.config");
 
@@ -152,7 +152,7 @@ namespace ServiceStack.Azure.Tests.Messaging
         public ManualResetEvent evt = new ManualResetEvent(false);
 
         public MqTestsAppHost(Func<IMessageService> createMqServerFn)
-            : base("Service Name", typeof(AnyTestMq).GetAssembly())
+            : base("Service Name", typeof(AnyTestMq).Assembly)
         {
             this.createMqServerFn = createMqServerFn;
         }
@@ -160,7 +160,7 @@ namespace ServiceStack.Azure.Tests.Messaging
         public override void Configure(Container container)
         {
             Plugins.Add(new ValidationFeature());
-            container.RegisterValidators(typeof(ValidateTestMqValidator).GetAssembly());
+            container.RegisterValidators(typeof(ValidateTestMqValidator).Assembly);
 
             container.Register(c => createMqServerFn());
 
