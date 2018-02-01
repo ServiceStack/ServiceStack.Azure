@@ -160,6 +160,8 @@ namespace ServiceStack.Azure.Messaging
                  : message.ToDlqQueueName();
 
             Publish(queueName, message);
+
+            Ack(message);
         }
 
         public void Notify(string queueName, IMessage message)
