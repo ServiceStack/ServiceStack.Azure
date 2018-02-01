@@ -1,9 +1,5 @@
 ﻿using ServiceStack.IO;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using ServiceStack.VirtualPath;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -12,7 +8,6 @@ namespace ServiceStack.Azure.Storage
 {
     public class AzureAppendBlobVirtualFile : AbstractVirtualFileBase
     {
-
         private readonly AzureAppendBlobVirtualFiles pathProvider;
         private readonly CloudBlobContainer container;
 
@@ -52,7 +47,7 @@ namespace ServiceStack.Azure.Storage
 
         public override void Refresh()
         {
-            CloudAppendBlob blob = pathProvider.Container.GetAppendBlobReference(Blob.Name);
+            var blob = pathProvider.Container.GetAppendBlobReference(Blob.Name);
             if (!blob.Exists()) return;
 
             Init(blob);

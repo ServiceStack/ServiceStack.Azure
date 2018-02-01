@@ -1,9 +1,5 @@
 ﻿using ServiceStack.IO;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using ServiceStack.VirtualPath;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -12,7 +8,6 @@ namespace ServiceStack.Azure.Storage
 {
     public class AzureBlobVirtualFile : AbstractVirtualFileBase
     {
-
         private readonly AzureBlobVirtualFiles pathProvider;
         private readonly CloudBlobContainer container;
 
@@ -52,8 +47,9 @@ namespace ServiceStack.Azure.Storage
 
         public override void Refresh()
         {
-            CloudBlockBlob blob = pathProvider.Container.GetBlockBlobReference(Blob.Name);
-            if (!blob.Exists()) return;
+            var blob = pathProvider.Container.GetBlockBlobReference(Blob.Name);
+            if (!blob.Exists())
+                return;
 
             Init(blob);
         }

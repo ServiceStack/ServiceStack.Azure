@@ -84,11 +84,7 @@ namespace ServiceStack.Azure.Messaging
             var sbWorker = new ServiceBusMqWorker(this, CreateMessageQueueClient(), queueName, sbClient);
             sbClient.RegisterMessageHandler(sbWorker.HandleMessageAsync,
                 new MessageHandlerOptions(
-                    (eventArgs) =>
-                    {
-                        return Task.CompletedTask;
-                    }
-                ) 
+                    (eventArgs) => Task.CompletedTask) 
                 { 
                     MaxConcurrentCalls = 1,
                     AutoComplete = false

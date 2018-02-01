@@ -36,16 +36,15 @@ namespace ServiceStack.Azure.Storage
             container.CreateIfNotExistsAsync().Wait();
         }
 
-
         public static void DeleteIfExists(this CloudBlobContainer container)
         {
             container.DeleteIfExistsAsync().Wait();
         }
 
-        public static void CreateOrReplace(this CloudAppendBlob blob, AccessCondition condition, BlobRequestOptions options, OperationContext operationContext) {
-          blob.CreateOrReplaceAsync(condition, options, operationContext).Wait();
+        public static void CreateOrReplace(this CloudAppendBlob blob, AccessCondition condition, BlobRequestOptions options, OperationContext operationContext)
+        {
+            blob.CreateOrReplaceAsync(condition, options, operationContext).Wait();
         }
-
 
         public static void Delete(this ICloudBlob blob)
         {
@@ -67,14 +66,14 @@ namespace ServiceStack.Azure.Storage
             blob.UploadFromStreamAsync(stream).Wait();
         }
 
-         public static void AppendText(this CloudAppendBlob blob, string content)
+        public static void AppendText(this CloudAppendBlob blob, string content)
         {
-           ((CloudAppendBlob) blob).AppendTextAsync(content).Wait();
+            blob.AppendTextAsync(content).Wait();
         }
 
-         public static void AppendFromStream(this CloudAppendBlob blob, Stream stream)
+        public static void AppendFromStream(this CloudAppendBlob blob, Stream stream)
         {
-           ((CloudAppendBlob) blob).AppendFromStreamAsync(stream).Wait();
+            blob.AppendFromStreamAsync(stream).Wait();
         }
 
         public static Stream OpenRead(this CloudBlob blob)
@@ -111,8 +110,6 @@ namespace ServiceStack.Azure.Storage
 
             return elements;
         }
-
-
 #endif
     }
 }

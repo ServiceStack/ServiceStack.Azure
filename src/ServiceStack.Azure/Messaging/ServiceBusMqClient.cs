@@ -24,7 +24,6 @@ namespace ServiceStack.Azure.Messaging
         {
         }
 
-
         public void Ack(IMessage message)
         {
             if (message == null)
@@ -60,16 +59,15 @@ namespace ServiceStack.Azure.Messaging
                 return (IMessage<T>)mqResponse;
 
 #if NETSTANDARD2_0
-            var msg = mqResponse as Microsoft.Azure.ServiceBus.Message;
-            if (msg == null) return null;
+            if (!(mqResponse is Microsoft.Azure.ServiceBus.Message msg))
+                return null;
             var msgBody = msg.GetBodyString();
 #else
-            var msg = mqResponse as BrokeredMessage;
-            if (msg == null) return null;
+            if (!(mqResponse is BrokeredMessage msg)) return null;
             var msgBody = msg.GetBody<string>();
 #endif
 
-            IMessage iMessage = (IMessage)JsonSerializer.DeserializeFromString(msgBody, typeof(IMessage));
+            var iMessage = (IMessage)JsonSerializer.DeserializeFromString(msgBody, typeof(IMessage));
             return (IMessage<T>)iMessage;
         }
 
@@ -95,13 +93,14 @@ namespace ServiceStack.Azure.Messaging
                 lockToken = msg.LockToken.ToString();
 #endif
 
-
             var iMessage = CreateMessage<T>(msg);
             if (iMessage != null)
             {
-                iMessage.Meta = new Dictionary<string, string>();
-                iMessage.Meta[LockTokenMeta] = lockToken;
-                iMessage.Meta[QueueNameMeta] = queueName;
+                iMessage.Meta = new Dictionary<string, string>
+                {
+                    [LockTokenMeta] = lockToken,
+                    [QueueNameMeta] = queueName
+                };
             }
 
             return iMessage;
@@ -129,11 +128,7 @@ namespace ServiceStack.Azure.Messaging
                     tcs.SetResult(message);
                     await sbClient.CompleteAsync(message.SystemProperties.LockToken);
                 },
-                (eventArgs) =>
-                {
-                    return Task.CompletedTask;
-                }
-            );
+                (eventArgs) => Task.CompletedTask);
 
             if (timeout.HasValue)
             {

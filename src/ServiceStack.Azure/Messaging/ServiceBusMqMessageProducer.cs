@@ -35,8 +35,7 @@ namespace ServiceStack.Azure.Messaging
         public void Publish<T>(T messageBody)
         {
             // Ensure we're publishing an IMessage
-            var message = messageBody as IMessage;
-            if (message != null)
+            if (messageBody is IMessage message)
             {
                 Publish(message.ToInQueueName(), message);
             }
@@ -50,7 +49,6 @@ namespace ServiceStack.Azure.Messaging
         {
             Publish(message.ToInQueueName(), message);
         }
-
 
         public virtual void Publish(string queueName, IMessage message)
         {

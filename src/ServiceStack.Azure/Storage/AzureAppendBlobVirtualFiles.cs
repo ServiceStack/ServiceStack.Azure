@@ -32,7 +32,6 @@ namespace ServiceStack.Azure.Storage
             rootDirectory = new AzureAppendBlobVirtualDirectory(this, null);
         }
 
-
         public AzureAppendBlobVirtualFiles(CloudBlobContainer container)
         {
             Container = container;
@@ -105,7 +104,7 @@ namespace ServiceStack.Azure.Storage
         {
             var filePath = SanitizePath(virtualPath);
 
-            CloudAppendBlob blob = Container.GetAppendBlobReference(filePath);
+            var blob = Container.GetAppendBlobReference(filePath);
             if (!blob.Exists()) return null;
 
             return new AzureAppendBlobVirtualFile(this, GetDirectory(GetDirPath(virtualPath))).Init(blob);
@@ -140,7 +139,6 @@ namespace ServiceStack.Azure.Storage
             return Container.ListBlobs((fromDirPath == null) ? null : fromDirPath + this.RealPathSeparator)
                 .Where(q => q.GetType() == typeof(CloudAppendBlob))
                 .Select(q => new AzureAppendBlobVirtualFile(this, dir).Init(q as CloudAppendBlob));
-
         }
 
         public string SanitizePath(string filePath)
@@ -149,9 +147,7 @@ namespace ServiceStack.Azure.Storage
                 ? null
                 : (filePath[0] == VirtualPathSeparator[0] ? filePath.Substring(1) : filePath);
 
-            return sanitizedPath != null
-                ? sanitizedPath.Replace('\\', VirtualPathSeparator[0])
-                : null;
+            return sanitizedPath?.Replace('\\', VirtualPathSeparator[0]);
         }
     }
 }

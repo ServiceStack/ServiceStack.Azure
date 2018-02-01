@@ -39,9 +39,11 @@ namespace ServiceStack.Azure.Messaging
             IMessage iMessage = (IMessage)JsonSerializer.DeserializeFromString(strMessage, typeof(IMessage));
             if (iMessage != null)
             {
-                iMessage.Meta = new Dictionary<string, string>();
-                iMessage.Meta[ServiceBusMqClient.LockTokenMeta] = msg.SystemProperties.LockToken;
-                iMessage.Meta[ServiceBusMqClient.QueueNameMeta] = queueName;
+                iMessage.Meta = new Dictionary<string, string>
+                {
+                    [ServiceBusMqClient.LockTokenMeta] = msg.SystemProperties.LockToken,
+                    [ServiceBusMqClient.QueueNameMeta] = queueName
+                };
             }
 
             Type msgType = iMessage.GetType().GetGenericArguments()[0];

@@ -20,12 +20,10 @@ namespace ServiceStack.Azure.Messaging
             }
         }
 
-
         public ServiceBusMqServer(string connectionString)
         {
             MessageFactory = new ServiceBusMqMessageFactory(connectionString);
         }
-
 
         public IMessageFactory MessageFactory { get; }
 
@@ -49,7 +47,6 @@ namespace ServiceStack.Azure.Messaging
 
         //private readonly Dictionary<Type, int> handlerThreadCountMap
         //    = new Dictionary<Type, int>();
-
 
         public List<Type> RegisteredTypes => handlerMap.Keys.ToList();
 
