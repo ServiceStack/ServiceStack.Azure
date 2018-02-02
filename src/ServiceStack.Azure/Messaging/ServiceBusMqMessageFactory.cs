@@ -56,24 +56,25 @@ namespace ServiceStack.Azure.Messaging
 
             queueMap = new Dictionary<string, Type>();
 
-            var queues = new [] { ".inq", ".outq", ".priorityq", ".dlq" };
+            var maSuffixes = new [] { ".inq", ".outq", ".priorityq", ".dlq" };
             foreach (var type in this.handlerMap.Keys)
             {
-                foreach (string q in queues)
+                foreach (var mqSuffix in maSuffixes)
                 {
-                    string queueName = type.Name + q;
+                    var queueName = QueueNames.ResolveQueueNameFn(type.Name, mqSuffix);
 
                     if (!queueMap.ContainsKey(queueName))
                         queueMap.Add(queueName, type);
 #if !NETSTANDARD2_0
-                    QueueDescription qd = new QueueDescription(queueName);
+                    var mqDesc = new QueueDescription(queueName);
                     if (!namespaceManager.QueueExists(queueName))
-                        namespaceManager.CreateQueue(qd);
+                        namespaceManager.CreateQueue(mqDesc);
 #endif
                 }
 
-                AddQueueHandler(type.Name + ".inq");
-                AddQueueHandler(type.Name + ".priorityq");
+                var mqNames = new QueueNames(type);
+                AddQueueHandler(mqNames.In);
+                AddQueueHandler(mqNames.Priority);
             }
         }
 
