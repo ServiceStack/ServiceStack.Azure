@@ -56,10 +56,10 @@ namespace ServiceStack.Azure.Messaging
 
             queueMap = new Dictionary<string, Type>();
 
-            var maSuffixes = new [] { ".inq", ".outq", ".priorityq", ".dlq" };
+            var mqSuffixes = new [] { ".inq", ".outq", ".priorityq", ".dlq" };
             foreach (var type in this.handlerMap.Keys)
             {
-                foreach (var mqSuffix in maSuffixes)
+                foreach (var mqSuffix in mqSuffixes)
                 {
                     var queueName = QueueNames.ResolveQueueNameFn(type.Name, mqSuffix);
 
