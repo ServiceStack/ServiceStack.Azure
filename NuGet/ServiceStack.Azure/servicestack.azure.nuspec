@@ -16,15 +16,15 @@
     <copyright>ServiceStack and contributors</copyright>
       <dependencies>
           <group targetFramework="net452">
-              <dependency id="WindowsAzure.ServiceBus" version="[4.1.6, )" />
+              <dependency id="WindowsAzure.ServiceBus" version="[4.1.8, )" />
               <dependency id="Microsoft.WindowsAzure.ConfigurationManager" version="[3.2.3, )" />
-              <dependency id="WindowsAzure.Storage" version="[8.7.0, )" />
+              <dependency id="WindowsAzure.Storage" version="[9.1.1, )" />
               <dependency id="ServiceStack" version="5.0.0" />
           </group>
           <group targetFramework=".netstandard2.0">
               <dependency id="Microsoft.Azure.ServiceBus" version="[2.0.0, )" />
-              <dependency id="Microsoft.Azure.Management.ServiceBus" version="[1.0.3, )" />
-              <dependency id="WindowsAzure.Storage" version="[8.7.0, )" />
+              <dependency id="Microsoft.Azure.Management.ServiceBus" version="[1.2.0, )" />
+              <dependency id="WindowsAzure.Storage" version="[9.1.1, )" />
               <dependency id="ServiceStack" version="5.0.0" />
           </group>
       </dependencies>
