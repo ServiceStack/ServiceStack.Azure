@@ -120,9 +120,6 @@ namespace ServiceStack.Azure.Messaging
 
         protected internal QueueClient GetOrCreateClient(string queueName)
         {
-            if (queueName.StartsWith(QueueNames.MqPrefix))
-                queueName = queueName.ReplaceFirst(QueueNames.MqPrefix, "");
-
             if (sbClients.ContainsKey(queueName))
                 return sbClients[queueName];
 

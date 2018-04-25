@@ -75,9 +75,6 @@ namespace ServiceStack.Azure.Messaging
 #if NETSTANDARD2_0
         protected MessageReceiver GetOrCreateMessageReceiver(string queueName)
         {
-            if (queueName.StartsWith(QueueNames.MqPrefix))
-                queueName = queueName.ReplaceFirst(QueueNames.MqPrefix, "");
-
             if (sbReceivers.ContainsKey(queueName))
                 return sbReceivers[queueName];
 
