@@ -203,6 +203,8 @@ namespace ServiceStack.Azure.Tests.Messaging
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
+            QueueNames.MqPrefix = "mq."; // mq: is not valid in Azure Service Bus Queue Names
+
             appHost = new MqTestsAppHost(() => CreateMqServer())
                 .Init()
                 .Start(ListeningOn);
@@ -363,7 +365,7 @@ namespace ServiceStack.Azure.Tests.Messaging
                 {
                     var requestMsg = new Message<ValidateTestMq>(request)
                     {
-                        ReplyTo = "mq:{0}.replyto".Fmt(request.GetType().Name)
+                        ReplyTo = "{0}{1}.replyto".Fmt(QueueNames.MqPrefix, request.GetType().Name)
                     };
                     mqProducer.Publish(requestMsg);
 
@@ -375,7 +377,7 @@ namespace ServiceStack.Azure.Tests.Messaging
                     request = new ValidateTestMq { Id = 10 };
                     requestMsg = new Message<ValidateTestMq>(request)
                     {
-                        ReplyTo = "mq:{0}.replyto".Fmt(request.GetType().Name)
+                        ReplyTo = "{0}{1}.replyto".Fmt(QueueNames.MqPrefix, request.GetType().Name)
                     };
                     mqProducer.Publish(requestMsg);
                     var responseMsg = mqClient.Get<ValidateTestMqResponse>(requestMsg.ReplyTo, null);
@@ -397,7 +399,7 @@ namespace ServiceStack.Azure.Tests.Messaging
                 {
                     var requestMsg = new Message<ThrowGenericError>(request)
                     {
-                        ReplyTo = "mq:{0}.replyto".Fmt(request.GetType().Name)
+                        ReplyTo = "{0}{1}.replyto".Fmt(QueueNames.MqPrefix, request.GetType().Name)
                     };
                     mqProducer.Publish(requestMsg);
 
