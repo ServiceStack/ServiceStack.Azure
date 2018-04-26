@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-#if NETSTANDARD1_6
+#if NETSTANDARD2_0
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Core;
 #else
@@ -16,16 +16,41 @@ namespace ServiceStack.Azure.Messaging
 {
     public class ServiceBusMqClient : ServiceBusMqMessageProducer, IMessageQueueClient, IOneWayClient
     {
+        internal const string LockTokenMeta = "LockToken";
+        internal const string QueueNameMeta = "QueueName";
 
         protected internal ServiceBusMqClient(ServiceBusMqMessageFactory parentFactory)
             : base(parentFactory)
         {
         }
 
-
         public void Ack(IMessage message)
         {
-            // Message is automatically dequeued at Get<>
+            if (message == null)
+                return;
+
+            if (message.Meta == null || !message.Meta.ContainsKey(LockTokenMeta))
+                throw new ArgumentException(LockTokenMeta);
+
+            if (!message.Meta.ContainsKey(QueueNameMeta))
+                throw new ArgumentException(QueueNameMeta);
+
+            var lockToken = message.Meta[LockTokenMeta];
+            var queueName = message.Meta[QueueNameMeta];
+
+            var sbClient = parentFactory.GetOrCreateClient(queueName);
+            try
+            {
+#if NETSTANDARD2_0
+                sbClient.CompleteAsync(lockToken).Wait();
+#else
+                sbClient.Complete(Guid.Parse(lockToken));
+#endif
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         public IMessage<T> CreateMessage<T>(object mqResponse)
@@ -33,17 +58,16 @@ namespace ServiceStack.Azure.Messaging
             if (mqResponse is IMessage)
                 return (IMessage<T>)mqResponse;
 
-#if NETSTANDARD1_6
-            var msg = mqResponse as Microsoft.Azure.ServiceBus.Message;
-            if (msg == null) return null;
-            var msgBody = Encoding.UTF8.GetString(msg.Body);
+#if NETSTANDARD2_0
+            if (!(mqResponse is Microsoft.Azure.ServiceBus.Message msg))
+                return null;
+            var msgBody = msg.GetBodyString();
 #else
-            var msg = mqResponse as BrokeredMessage;
-            if (msg == null) return null;
+            if (!(mqResponse is BrokeredMessage msg)) return null;
             var msgBody = msg.GetBody<string>();
 #endif
 
-            IMessage iMessage = (IMessage)JsonSerializer.DeserializeFromString(msgBody, typeof(IMessage));
+            var iMessage = (IMessage)JsonSerializer.DeserializeFromString(msgBody, typeof(IMessage));
             return (IMessage<T>)iMessage;
         }
 
@@ -54,22 +78,35 @@ namespace ServiceStack.Azure.Messaging
 
         public IMessage<T> Get<T>(string queueName, TimeSpan? timeout = default(TimeSpan?))
         {
-            var sbClient = GetOrCreateClient(queueName);
-#if NETSTANDARD1_6
+            var sbClient = parentFactory.GetOrCreateClient(queueName);
+            string lockToken = null;
+
+#if NETSTANDARD2_0
             var msg = sbClient.ReceiveAsync(timeout).Result;
             if (msg != null)
-                sbClient.CompleteAsync(msg.SystemProperties.LockToken).Wait();
+             lockToken = msg.SystemProperties.LockToken;
 #else
             var msg = timeout.HasValue
                 ? sbClient.Receive(timeout.Value)
                 : sbClient.Receive();
+            if (msg != null)
+                lockToken = msg.LockToken.ToString();
 #endif
 
+            var iMessage = CreateMessage<T>(msg);
+            if (iMessage != null)
+            {
+                iMessage.Meta = new Dictionary<string, string>
+                {
+                    [LockTokenMeta] = lockToken,
+                    [QueueNameMeta] = queueName
+                };
+            }
 
-            return CreateMessage<T>(msg);
+            return iMessage;
         }
 
-#if NETSTANDARD1_6
+#if NETSTANDARD2_0
         private async Task<Microsoft.Azure.ServiceBus.Message> GetMessageFromReceiver(MessageReceiver messageReceiver, TimeSpan? timeout)
         {
             var msg = timeout.HasValue
@@ -91,11 +128,7 @@ namespace ServiceStack.Azure.Messaging
                     tcs.SetResult(message);
                     await sbClient.CompleteAsync(message.SystemProperties.LockToken);
                 },
-                (eventArgs) =>
-                {
-                    return Task.CompletedTask;
-                }
-            );
+                (eventArgs) => Task.CompletedTask);
 
             if (timeout.HasValue)
             {
@@ -112,10 +145,7 @@ namespace ServiceStack.Azure.Messaging
         }
 #endif
 
-        public IMessage<T> GetAsync<T>(string queueName)
-        {
-            throw new NotImplementedException();
-        }
+        public IMessage<T> GetAsync<T>(string queueName) => Get<T>(queueName);
 
         public string GetTempQueueName()
         {
@@ -130,6 +160,8 @@ namespace ServiceStack.Azure.Messaging
                  : message.ToDlqQueueName();
 
             Publish(queueName, message);
+
+            Ack(message);
         }
 
         public void Notify(string queueName, IMessage message)

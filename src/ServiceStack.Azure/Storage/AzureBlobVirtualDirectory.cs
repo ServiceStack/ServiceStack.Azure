@@ -2,9 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections;
 using Microsoft.WindowsAzure.Storage.Blob;
 using ServiceStack.VirtualPath;
 
@@ -25,9 +22,9 @@ namespace ServiceStack.Azure.Storage
 
             var separatorIndex = directoryPath.LastIndexOf(pathProvider.RealPathSeparator, StringComparison.Ordinal);
 
-            ParentDirectory = new AzureBlobVirtualDirectory(pathProvider, 
+            ParentDirectory = new AzureBlobVirtualDirectory(pathProvider,
                 separatorIndex == -1 ? string.Empty : directoryPath.Substring(0, separatorIndex));
-    }
+        }
 
         public string DirectoryPath { get; set; }
 
@@ -48,13 +45,7 @@ namespace ServiceStack.Azure.Storage
             }
         }
 
-        public override DateTime LastModified
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public override DateTime LastModified => throw new NotImplementedException();
 
         public override IEnumerable<IVirtualFile> Files => pathProvider.GetImmediateFiles(this.DirectoryPath);
 
@@ -64,8 +55,8 @@ namespace ServiceStack.Azure.Storage
             var ret = pathProvider.Container.ListBlobs(this.DirectoryPath, false)
                 .Where(q => q.GetType() == typeof(CloudBlobDirectory))
                 .Any();
-            return ret;
 
+            return ret;
         }
 
         public override string Name => DirectoryPath?.SplitOnLast(pathProvider.RealPathSeparator).Last();
@@ -88,16 +79,13 @@ namespace ServiceStack.Azure.Storage
             var dir = (this.DirectoryPath == null) ? null : this.DirectoryPath + pathProvider.RealPathSeparator;
 
             var ret = pathProvider.Container.ListBlobs(dir)
-                      .Where(q => q.GetType() == typeof(CloudBlockBlob))
-                      .Where(q =>
-                      {
-                          var x = ((CloudBlockBlob)q).Name.Glob(globPattern);
-                          return x;
-                      })
-                      .Select(q =>
-                      {
-                          return new AzureBlobVirtualFile(pathProvider, this).Init(q as CloudBlockBlob);
-                      });
+                .Where(q => q.GetType() == typeof(CloudBlockBlob))
+                .Where(q =>
+                {
+                    var x = ((CloudBlockBlob)q).Name.Glob(globPattern);
+                    return x;
+                })
+                .Select(q => new AzureBlobVirtualFile(pathProvider, this).Init(q as CloudBlockBlob));
             return ret;
         }
 

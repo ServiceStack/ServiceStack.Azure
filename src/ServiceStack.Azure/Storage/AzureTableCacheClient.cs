@@ -31,8 +31,7 @@ namespace ServiceStack.Azure.Storage
             };
         }
 
-
-        protected override ILog Log { get { return LogManager.GetLogger(GetType()); } }
+        protected override ILog Log => LogManager.GetLogger(GetType());
         public bool FlushOnDispose { get; set; }
 
         string connectionString;
@@ -51,7 +50,6 @@ namespace ServiceStack.Azure.Storage
             serializer = new JsonStringSerializer();
         }
 
-
         private bool TryGetValue(string key, out TableCacheEntry entry)
         {
             entry = null;
@@ -68,7 +66,6 @@ namespace ServiceStack.Azure.Storage
             return false;
         }
 
-
         public void Dispose()
         {
             if (!FlushOnDispose) return;
@@ -76,12 +73,11 @@ namespace ServiceStack.Azure.Storage
             FlushAll();
         }
 
-
         public bool Add<T>(string key, T value)
         {
-            string sVal = serializer.SerializeToString<T>(value);
+            var sVal = serializer.SerializeToString<T>(value);
 
-            TableCacheEntry entry = CreateTableEntry(key, sVal, null);
+            var entry = CreateTableEntry(key, sVal, null);
             return AddInternal(key, entry);
         }
 
@@ -92,16 +88,16 @@ namespace ServiceStack.Azure.Storage
 
         public bool Add<T>(string key, T value, DateTime expiresAt)
         {
-            string sVal = serializer.SerializeToString<T>(value);
+            var sVal = serializer.SerializeToString<T>(value);
 
-            TableCacheEntry entry = CreateTableEntry(key, sVal, null, expiresAt);
+            var entry = CreateTableEntry(key, sVal, null, expiresAt);
             return AddInternal(key, entry);
         }
 
         public bool AddInternal(string key, TableCacheEntry entry)
         {
-            TableOperation op = TableOperation.Insert(entry);
-            TableResult result = table.Execute(op);
+            var op = TableOperation.Insert(entry);
+            var result = table.Execute(op);
             return result.HttpStatusCode == 200;
         }
 
@@ -163,7 +159,7 @@ namespace ServiceStack.Azure.Storage
 
         public T Get<T>(string key)
         {
-            TableCacheEntry entry = GetEntry(key);
+            var entry = GetEntry(key);
             if (entry != null)
                 return Deserialize<T>(entry.Data);
             return default(T);
@@ -171,8 +167,7 @@ namespace ServiceStack.Azure.Storage
 
         internal TableCacheEntry GetEntry(string key)
         {
-            TableCacheEntry entry = null;
-            if (TryGetValue(key, out entry))
+            if (TryGetValue(key, out var entry))
             {
                 if (entry.HasExpired)
                 {
@@ -202,9 +197,9 @@ namespace ServiceStack.Azure.Storage
 
         public bool Remove(string key)
         {
-            TableCacheEntry entry = CreateTableEntry(key);
+            var entry = CreateTableEntry(key);
             entry.ETag = "*";   // Avoids concurrency
-            TableOperation op = TableOperation.Delete(entry);
+            var op = TableOperation.Delete(entry);
             try
             {
                 TableResult result = table.Execute(op);
@@ -230,24 +225,23 @@ namespace ServiceStack.Azure.Storage
 
         public bool Replace<T>(string key, T value, TimeSpan expiresIn)
         {
-            string sVal = Serialize<T>(value);
+            var sVal = Serialize<T>(value);
             return ReplaceInternal(key, sVal, DateTime.UtcNow.Add(expiresIn));
         }
 
         public bool Replace<T>(string key, T value, DateTime expiresAt)
         {
-            string sVal = Serialize<T>(value);
+            var sVal = Serialize<T>(value);
             return ReplaceInternal(key, sVal, expiresAt);
         }
 
         internal bool ReplaceInternal(string key, string value, DateTime? expiresAt = null)
         {
-            TableCacheEntry entry = null;
-            if (TryGetValue(key, out entry))
+            if (TryGetValue(key, out var entry))
             {
                 entry = CreateTableEntry(key, value, null, expiresAt);
-                TableOperation op = TableOperation.Replace(entry);
-                TableResult result = table.Execute(op);
+                var op = TableOperation.Replace(entry);
+                var result = table.Execute(op);
                 return result.HttpStatusCode == 200;
             }
             return false;
@@ -255,8 +249,8 @@ namespace ServiceStack.Azure.Storage
 
         public bool Set<T>(string key, T value)
         {
-            string sVal = Serialize<T>(value);
-            TableCacheEntry entry = CreateTableEntry(key, sVal);
+            var sVal = Serialize<T>(value);
+            var entry = CreateTableEntry(key, sVal);
             return SetInternal(key, entry);
         }
 
@@ -267,16 +261,16 @@ namespace ServiceStack.Azure.Storage
 
         public bool Set<T>(string key, T value, DateTime expiresAt)
         {
-            string sVal = Serialize<T>(value);
+            var sVal = Serialize<T>(value);
 
-            TableCacheEntry entry = CreateTableEntry(key, sVal, null, expiresAt);
+            var entry = CreateTableEntry(key, sVal, null, expiresAt);
             return SetInternal(key, entry);
         }
 
         internal bool SetInternal(string key, TableCacheEntry entry)
         {
-            TableOperation op = TableOperation.InsertOrReplace(entry);
-            TableResult result = table.Execute(op);
+            var op = TableOperation.InsertOrReplace(entry);
+            var result = table.Execute(op);
             return result.HttpStatusCode == 200 || result.HttpStatusCode == 204;    // Success or "No content"
         }
 
@@ -290,7 +284,7 @@ namespace ServiceStack.Azure.Storage
 
         public TimeSpan? GetTimeToLive(string key)
         {
-            TableCacheEntry entry = GetEntry(key);
+            var entry = GetEntry(key);
             if (entry != null)
             {
                 if (entry.ExpiryDate == null)
@@ -314,10 +308,9 @@ namespace ServiceStack.Azure.Storage
         public IEnumerable<string> GetKeysByRegex(string regex)
         {
             // Very inefficient - query all keys and do client-side filter
-            TableQuery<TableCacheEntry> query = new TableQuery<TableCacheEntry>()
-                ;
+            var query = new TableQuery<TableCacheEntry>();
 
-            Regex re = new Regex(regex, RegexOptions.Compiled | RegexOptions.Singleline);
+            var re = new Regex(regex, RegexOptions.Compiled | RegexOptions.Singleline);
 
             return table.ExecuteQuery<TableCacheEntry>(query)
                 .Where(q => re.IsMatch(q.RowKey))
@@ -351,7 +344,6 @@ namespace ServiceStack.Azure.Storage
 
         public class TableCacheEntry : TableEntity
         {
-
             public TableCacheEntry(string key)
             {
                 this.PartitionKey = "";
@@ -360,16 +352,13 @@ namespace ServiceStack.Azure.Storage
 
             public TableCacheEntry() { }
 
-
             [StringLength(1024 * 2014 /* 1 MB max */
                 - 1024 /* partition key max size*/
                 - 1024 /* row key max size */
                 - 64   /* timestamp size */
                 - 64 * 3 /* 3 datetime fields */
-
                 // - 8 * 1024 /* ID */
                 )]
-
             public string Data { get; set; }
 
             public DateTime? ExpiryDate { get; set; }
@@ -378,11 +367,7 @@ namespace ServiceStack.Azure.Storage
 
             public DateTime ModifiedDate { get; set; }
 
-            internal bool HasExpired
-            {
-                get { return ExpiryDate != null && ExpiryDate < DateTime.UtcNow; }
-            }
-
+            internal bool HasExpired => ExpiryDate != null && ExpiryDate < DateTime.UtcNow;
         }
 
     }

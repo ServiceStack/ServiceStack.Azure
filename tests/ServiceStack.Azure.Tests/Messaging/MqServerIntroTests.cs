@@ -29,7 +29,7 @@ namespace ServiceStack.Azure.Tests.Messaging
         {
             get
             {
-                var assembly = typeof(AzureServiceBusMqServerIntroTests).GetAssembly();
+                var assembly = typeof(AzureServiceBusMqServerIntroTests).Assembly;
                 var path = new Uri(assembly.CodeBase).LocalPath;
                 var configFile = Path.Combine(Path.GetDirectoryName(path), "settings.config");
 
@@ -107,7 +107,7 @@ namespace ServiceStack.Azure.Tests.Messaging
         private readonly Func<IMessageService> createMqServerFn;
 
         public AppHost(Func<IMessageService> createMqServerFn)
-            : base("Rabbit MQ Test Host", typeof(HelloService).GetAssembly())
+            : base("Rabbit MQ Test Host", typeof(HelloService).Assembly)
         {
             this.createMqServerFn = createMqServerFn;
         }
@@ -343,7 +343,7 @@ namespace ServiceStack.Azure.Tests.Messaging
         public void Does_process_messages_in_BasicAppHost()
         {
             LogManager.LogFactory = null;
-            using (var appHost = new BasicAppHost(typeof(HelloService).GetAssembly())
+            using (var appHost = new BasicAppHost(typeof(HelloService).Assembly)
             {
                 ConfigureAppHost = host =>
                 {
@@ -372,7 +372,7 @@ namespace ServiceStack.Azure.Tests.Messaging
     {
         public override IMessageService CreateMqServer(IAppHost host, int retryCount = 1)
         {
-            var assembly = typeof(AzureServiceBusMqServerPostMessageTests).GetAssembly();
+            var assembly = typeof(AzureServiceBusMqServerPostMessageTests).Assembly;
             var path = new Uri(assembly.CodeBase).LocalPath;
             var configFile = Path.Combine(Path.GetDirectoryName(path), "settings.config");
 
@@ -432,7 +432,7 @@ namespace ServiceStack.Azure.Tests.Messaging
         {
             LogManager.LogFactory = null;
             var disposeCount = 0;
-            using (var appHost = new BasicAppHost(typeof(HelloWithDepService).GetAssembly())
+            using (var appHost = new BasicAppHost(typeof(HelloWithDepService).Assembly)
             {
                 ConfigureAppHost = host =>
                 {

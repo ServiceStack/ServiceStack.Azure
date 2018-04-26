@@ -25,9 +25,9 @@ namespace ServiceStack.Azure.Storage
 
             var separatorIndex = directoryPath.LastIndexOf(pathProvider.RealPathSeparator, StringComparison.Ordinal);
 
-            ParentDirectory = new AzureAppendBlobVirtualDirectory(pathProvider, 
+            ParentDirectory = new AzureAppendBlobVirtualDirectory(pathProvider,
                 separatorIndex == -1 ? string.Empty : directoryPath.Substring(0, separatorIndex));
-    }
+        }
 
         public string DirectoryPath { get; set; }
 
@@ -48,13 +48,7 @@ namespace ServiceStack.Azure.Storage
             }
         }
 
-        public override DateTime LastModified
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public override DateTime LastModified => throw new NotImplementedException();
 
         public override IEnumerable<IVirtualFile> Files => pathProvider.GetImmediateFiles(this.DirectoryPath);
 
@@ -94,10 +88,7 @@ namespace ServiceStack.Azure.Storage
                           var x = ((CloudAppendBlob)q).Name.Glob(globPattern);
                           return x;
                       })
-                      .Select(q =>
-                      {
-                          return new AzureAppendBlobVirtualFile(pathProvider, this).Init(q as CloudAppendBlob);
-                      });
+                      .Select(q => new AzureAppendBlobVirtualFile(pathProvider, this).Init(q as CloudAppendBlob));
             return ret;
         }
 
@@ -105,7 +96,5 @@ namespace ServiceStack.Azure.Storage
         {
             return new AzureAppendBlobVirtualDirectory(this.pathProvider, pathProvider.SanitizePath(DirectoryPath.CombineWith(directoryName)));
         }
-
-
     }
 }

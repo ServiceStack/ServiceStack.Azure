@@ -9,8 +9,6 @@ namespace ServiceStack.Azure.Messaging
 {
     public class ServiceBusMqServer : IMessageService
     {
-        private readonly string connectionString;
-
         private int retryCount = 1;
         public int RetryCount
         {
@@ -22,15 +20,12 @@ namespace ServiceStack.Azure.Messaging
             }
         }
 
-
         public ServiceBusMqServer(string connectionString)
         {
-            this.connectionString = connectionString;
             MessageFactory = new ServiceBusMqMessageFactory(connectionString);
         }
 
-
-        public IMessageFactory MessageFactory { get; private set; }
+        public IMessageFactory MessageFactory { get; }
 
         public Func<string, IOneWayClient> ReplyClientFactory { get; set; }
 
@@ -52,7 +47,6 @@ namespace ServiceStack.Azure.Messaging
 
         //private readonly Dictionary<Type, int> handlerThreadCountMap
         //    = new Dictionary<Type, int>();
-
 
         public List<Type> RegisteredTypes => handlerMap.Keys.ToList();
 
@@ -119,9 +113,9 @@ namespace ServiceStack.Azure.Messaging
         {
             return new MessageHandlerFactory<T>(this, processMessageFn, processExceptionEx)
             {
-                RequestFilter = this.RequestFilter,
-                ResponseFilter = this.ResponseFilter,
-                RetryCount = this.RetryCount,
+                RequestFilter = RequestFilter,
+                ResponseFilter = ResponseFilter,
+                RetryCount = RetryCount,
                 PublishResponsesWhitelist = PublishResponsesWhitelist
             };
         }
