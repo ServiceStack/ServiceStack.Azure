@@ -20,9 +20,9 @@ namespace ServiceStack.Azure.Messaging
             }
         }
 
-        public ServiceBusMqServer(string connectionString)
+        public ServiceBusMqServer(string connectionString, int prefetchCount=0 )
         {
-            MessageFactory = new ServiceBusMqMessageFactory(connectionString);
+            MessageFactory = new ServiceBusMqMessageFactory(connectionString, prefetchCount);
         }
 
         public IMessageFactory MessageFactory { get; }
@@ -45,8 +45,7 @@ namespace ServiceStack.Azure.Messaging
 
         protected internal Dictionary<Type, IMessageHandlerFactory> HandlerMap => handlerMap;
 
-        //private readonly Dictionary<Type, int> handlerThreadCountMap
-        //    = new Dictionary<Type, int>();
+        private readonly Dictionary<Type, int> handlerThreadCountMap= new Dictionary<Type, int>();
 
         public List<Type> RegisteredTypes => handlerMap.Keys.ToList();
 
@@ -83,7 +82,7 @@ namespace ServiceStack.Azure.Messaging
 
         public void RegisterHandler<T>(Func<IMessage<T>, object> processMessageFn)
         {
-            RegisterHandler(processMessageFn, null, noOfThreads: 1);
+            RegisterHandler(processMessageFn, null,  1);
         }
 
         public void RegisterHandler<T>(Func<IMessage<T>, object> processMessageFn, int noOfThreads)
@@ -93,7 +92,7 @@ namespace ServiceStack.Azure.Messaging
 
         public void RegisterHandler<T>(Func<IMessage<T>, object> processMessageFn, Action<IMessageHandler, IMessage<T>, Exception> processExceptionEx)
         {
-            RegisterHandler(processMessageFn, processExceptionEx, noOfThreads: 1);
+            RegisterHandler(processMessageFn, processExceptionEx,  1);
         }
 
         public void RegisterHandler<T>(Func<IMessage<T>, object> processMessageFn, Action<IMessageHandler, IMessage<T>, Exception> processExceptionEx, int noOfThreads)
@@ -104,7 +103,7 @@ namespace ServiceStack.Azure.Messaging
             }
 
             handlerMap[typeof(T)] = CreateMessageHandlerFactory(processMessageFn, processExceptionEx);
-            //handlerThreadCountMap[typeof(T)] = noOfThreads;
+            handlerThreadCountMap[typeof(T)] = noOfThreads;
 
             LicenseUtils.AssertValidUsage(LicenseFeature.ServiceStack, QuotaType.Operations, handlerMap.Count);
         }
@@ -123,7 +122,7 @@ namespace ServiceStack.Azure.Messaging
         public void Start()
         {
             // Create the queues (if they don't exist) and start the listeners
-            ((ServiceBusMqMessageFactory)MessageFactory).StartQueues(this.handlerMap);
+            ((ServiceBusMqMessageFactory)MessageFactory).StartQueues(this.handlerMap, this.handlerThreadCountMap);
         }
 
         public void Stop()

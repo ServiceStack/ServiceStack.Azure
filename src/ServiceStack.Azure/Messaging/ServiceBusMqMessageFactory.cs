@@ -1,5 +1,6 @@
 ﻿using ServiceStack.Messaging;
 using System;
+using System.CodeDom;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
@@ -16,6 +17,7 @@ namespace ServiceStack.Azure.Messaging
     public class ServiceBusMqMessageFactory : IMessageFactory
     {
         protected internal readonly string address;
+        protected internal readonly int prefetchCount;
 #if !NETSTANDARD2_0
         protected internal readonly NamespaceManager namespaceManager;
 #endif
@@ -26,9 +28,10 @@ namespace ServiceStack.Azure.Messaging
         // A list of all Service Bus QueueClients - one per type & queue (priorityq, inq, outq, and dlq)
         private static readonly ConcurrentDictionary<string, QueueClient> sbClients = new ConcurrentDictionary<string, QueueClient>();
 
-        public ServiceBusMqMessageFactory(string address)
+        public ServiceBusMqMessageFactory(string address, int prefetchCount=0)
         {
             this.address = address;
+            this.prefetchCount = prefetchCount;
 #if !NETSTANDARD2_0
             this.namespaceManager = NamespaceManager.CreateFromConnectionString(address);
 #endif
@@ -49,7 +52,7 @@ namespace ServiceStack.Azure.Messaging
 
         }
 
-        protected internal void StartQueues(Dictionary<Type, IMessageHandlerFactory> handlerMap)
+        protected internal void StartQueues(Dictionary<Type, IMessageHandlerFactory> handlerMap,  Dictionary<Type, int> handlerThreadCountMap)
         {
             // Create queues for each registered type
             this.handlerMap = handlerMap;
@@ -59,6 +62,7 @@ namespace ServiceStack.Azure.Messaging
             var mqSuffixes = new [] { ".inq", ".outq", ".priorityq", ".dlq" };
             foreach (var type in this.handlerMap.Keys)
             {
+                
                 foreach (var mqSuffix in mqSuffixes)
                 {
                     var queueName = QueueNames.ResolveQueueNameFn(type.Name, mqSuffix);
@@ -74,12 +78,12 @@ namespace ServiceStack.Azure.Messaging
                 }
 
                 var mqNames = new QueueNames(type);
-                AddQueueHandler(mqNames.In);
-                AddQueueHandler(mqNames.Priority);
+                AddQueueHandler(mqNames.In, handlerThreadCountMap[type]);
+                AddQueueHandler(mqNames.Priority, handlerThreadCountMap[type]);
             }
         }
 
-        private void AddQueueHandler(string queueName)
+        private void AddQueueHandler(string queueName, int threadCount=1)
         {
             queueName = queueName.SafeQueueName();
 
@@ -101,13 +105,16 @@ namespace ServiceStack.Azure.Messaging
 
                 AutoComplete = false,          
                 //AutoRenewTimeout = new TimeSpan()
-                MaxConcurrentCalls = 1
+                MaxConcurrentCalls = threadCount
+                
             };
 
             var sbClient = QueueClient.CreateFromConnectionString(address, queueName, ReceiveMode.PeekLock);
+            
             var sbWorker = new ServiceBusMqWorker(this, CreateMessageQueueClient(), queueName, sbClient);
             sbClient.OnMessage(sbWorker.HandleMessage, options);
 #endif
+            sbClient.PrefetchCount = prefetchCount;
             sbClients.GetOrAdd(queueName, sbClient);
         }
 
