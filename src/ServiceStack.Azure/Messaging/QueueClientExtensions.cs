@@ -1,21 +1,20 @@
-#if NETSTANDARD2_0
-using Microsoft.Azure.ServiceBus;
-using Microsoft.Azure.ServiceBus.Core;
 using System.Threading.Tasks;
 using System;
 using System.Text;
 using ServiceStack.Text;
-using System.Reflection;
 
 namespace ServiceStack.Azure.Messaging
 {
+
     public static class QueueClientExtensions
     {
-        static readonly PropertyInfo innerReceiverProperty = typeof(QueueClient).GetProperty("InnerReceiver");
+#if NETSTANDARD2_0
 
-        public static async Task<Microsoft.Azure.ServiceBus.Message> ReceiveAsync(this QueueClient sbClient, TimeSpan? timeout)
+        static readonly System.Reflection.PropertyInfo innerReceiverProperty = typeof(Microsoft.Azure.ServiceBus.QueueClient).GetProperty("InnerReceiver");
+
+        public static async Task<Microsoft.Azure.ServiceBus.Message> ReceiveAsync(this Microsoft.Azure.ServiceBus.QueueClient sbClient, TimeSpan? timeout)
         {
-            var receiver = (MessageReceiver)innerReceiverProperty.GetValue(sbClient);
+            var receiver = (Microsoft.Azure.ServiceBus.Core.MessageReceiver)innerReceiverProperty.GetValue(sbClient);
 
             var msg = timeout.HasValue
                 ? await receiver.ReceiveAsync(timeout.Value)
@@ -39,6 +38,10 @@ namespace ServiceStack.Azure.Messaging
 
             return strMessage;
         }
-    }
-}
 #endif
+
+        internal static string SafeQueueName(this string queueName) =>
+            queueName?.Replace(":", ".");
+    }
+    
+}

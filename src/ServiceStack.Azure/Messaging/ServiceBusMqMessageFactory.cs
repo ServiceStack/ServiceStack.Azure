@@ -62,6 +62,7 @@ namespace ServiceStack.Azure.Messaging
                 foreach (var mqSuffix in mqSuffixes)
                 {
                     var queueName = QueueNames.ResolveQueueNameFn(type.Name, mqSuffix);
+                    queueName = queueName.SafeQueueName();
 
                     if (!queueMap.ContainsKey(queueName))
                         queueMap.Add(queueName, type);
@@ -80,6 +81,8 @@ namespace ServiceStack.Azure.Messaging
 
         private void AddQueueHandler(string queueName)
         {
+            queueName = queueName.SafeQueueName();
+
 #if NETSTANDARD2_0
             var sbClient = new QueueClient(address, queueName, ReceiveMode.PeekLock);
             var sbWorker = new ServiceBusMqWorker(this, CreateMessageQueueClient(), queueName, sbClient);
@@ -120,12 +123,14 @@ namespace ServiceStack.Azure.Messaging
 
         protected internal QueueClient GetOrCreateClient(string queueName)
         {
+            queueName = queueName.SafeQueueName();
+            
             if (sbClients.ContainsKey(queueName))
                 return sbClients[queueName];
 
 #if !NETSTANDARD2_0
             // Create queue on ServiceBus namespace if it doesn't exist
-            QueueDescription qd = new QueueDescription(queueName);
+            var qd = new QueueDescription(queueName);
             if (!namespaceManager.QueueExists(queueName))
                 namespaceManager.CreateQueue(qd);
 #endif

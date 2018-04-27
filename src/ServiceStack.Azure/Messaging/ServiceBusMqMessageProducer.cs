@@ -52,6 +52,9 @@ namespace ServiceStack.Azure.Messaging
 
         public virtual void Publish(string queueName, IMessage message)
         {
+            queueName = queueName.SafeQueueName();
+            message.ReplyTo = message.ReplyTo.SafeQueueName();
+
             var sbClient = parentFactory.GetOrCreateClient(queueName);
             using (JsConfig.With(includeTypeInfo: true))
             {
@@ -64,8 +67,7 @@ namespace ServiceStack.Azure.Messaging
                 };
                 sbClient.SendAsync(msg).Wait();
 #else
-                BrokeredMessage msg = new BrokeredMessage(msgBody);
-                msg.MessageId = message.Id.ToString();
+                var msg = new BrokeredMessage(msgBody) {MessageId = message.Id.ToString()};
 
                 sbClient.Send(msg);
 #endif
@@ -75,6 +77,8 @@ namespace ServiceStack.Azure.Messaging
 #if NETSTANDARD2_0
         protected MessageReceiver GetOrCreateMessageReceiver(string queueName)
         {
+            queueName = queueName.SafeQueueName();
+
             if (sbReceivers.ContainsKey(queueName))
                 return sbReceivers[queueName];
 

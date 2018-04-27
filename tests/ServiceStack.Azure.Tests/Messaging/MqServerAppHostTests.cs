@@ -28,6 +28,10 @@ namespace ServiceStack.Azure.Tests.Messaging
         {
             get
             {
+                var connString = Environment.GetEnvironmentVariable("AZURE_BUS_CONNECTION_STRING");
+                if (connString != null)
+                    return connString;
+                
                 var assembly = typeof(AzureServiceBusMqServerAppHostTests).Assembly;
                 var path = new Uri(assembly.CodeBase).LocalPath;
                 var configFile = Path.Combine(Path.GetDirectoryName(path), "settings.config");
@@ -203,8 +207,6 @@ namespace ServiceStack.Azure.Tests.Messaging
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            QueueNames.MqPrefix = "mq."; // mq: is not valid in Azure Service Bus Queue Names
-
             appHost = new MqTestsAppHost(() => CreateMqServer())
                 .Init()
                 .Start(ListeningOn);
