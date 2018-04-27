@@ -17,14 +17,23 @@ ServiceStack.Azure includes implementation of the following ServiceStack provide
 The code to configure and start an ServiceBus MQ Server is similar to other MQ Servers:
 
 ```csharp
-container.Register<IMessageService>(c => new ServiceBusMqServer(ConnectionString));
+
+container.Register<IMessageService>(c => new ServiceBusMqServer(ConnectionString));  //prefetch defaults to 0 (Service Bus default) if not provided
+// var prefetchCount = 10;
+// container.Register<IMessageService>(c => new ServiceBusMqServer(ConnectionString));
 
 var mqServer = container.Resolve<IMessageService>();
-mqServer.RegisterHandler<ServiceDto>(ExecuteMessage);
+
+mqServer.RegisterHandler<ServiceDto>(ExecuteMessage, 4);  // 4 is the max concurrent calls (threads)    
+
 mqServer.Start();
 ```
 
-Where ConnectionString is connection string to Service Bus, how to obtain it from Azure Portal you can find in [Get Started with Service Bus queues](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-dotnet-get-started-with-queues) article
+Where ConnectionString is connection string to Service Bus, how to obtain it from Azure Portal you can find in [Get Started with Service Bus queues](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-dotnet-get-started-with-queues) article.
+
+The prefetch account defaults to 0 and can be used to allow the clients to load additional messages from the service when it receives a read operation.  You can find out more from [Best Practices for performance improvements using Service Bus Messaging](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-performance-improvements#prefetching).
+
+The number of thread parameter to the RegisterHandler gets or sets the maximum number of concurrent calls to the callback the message pump should initiate.  
 
 When an MQ Server is registered, ServiceStack automatically publishes Requests accepted on the "One Way" pre-defined route to the registered MQ broker. The message is later picked up and executed by a Message Handler on a background Thread.
 
