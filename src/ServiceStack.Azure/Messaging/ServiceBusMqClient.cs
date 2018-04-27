@@ -78,6 +78,8 @@ namespace ServiceStack.Azure.Messaging
 
         public IMessage<T> Get<T>(string queueName, TimeSpan? timeout = default(TimeSpan?))
         {
+            queueName = queueName.SafeQueueName();
+
             var sbClient = parentFactory.GetOrCreateClient(queueName);
             string lockToken = null;
 

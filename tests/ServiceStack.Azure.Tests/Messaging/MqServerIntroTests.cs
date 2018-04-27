@@ -29,6 +29,10 @@ namespace ServiceStack.Azure.Tests.Messaging
         {
             get
             {
+                var connString = Environment.GetEnvironmentVariable("AZURE_BUS_CONNECTION_STRING");
+                if (connString != null)
+                    return connString;
+                
                 var assembly = typeof(AzureServiceBusMqServerIntroTests).Assembly;
                 var path = new Uri(assembly.CodeBase).LocalPath;
                 var configFile = Path.Combine(Path.GetDirectoryName(path), "settings.config");
