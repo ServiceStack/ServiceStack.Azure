@@ -26,8 +26,11 @@ namespace ServiceStack.Azure.Messaging
         // A list of all Service Bus QueueClients - one per type & queue (priorityq, inq, outq, and dlq)
         private static readonly ConcurrentDictionary<string, QueueClient> sbClients = new ConcurrentDictionary<string, QueueClient>();
 
-        public ServiceBusMqMessageFactory(string address)
+        public ServiceBusMqServer MqServer { get; }
+
+        public ServiceBusMqMessageFactory(ServiceBusMqServer mqServer, string address)
         {
+            this.MqServer = mqServer;
             this.address = address;
 #if !NETSTANDARD2_0
             this.namespaceManager = NamespaceManager.CreateFromConnectionString(address);

@@ -168,6 +168,9 @@ namespace ServiceStack.Azure.Messaging
 
         public void Notify(string queueName, IMessage message)
         {
+            if (parentFactory.MqServer.DisableNotifyMessages)
+                return;
+            
             Publish(queueName, message);
         }
 

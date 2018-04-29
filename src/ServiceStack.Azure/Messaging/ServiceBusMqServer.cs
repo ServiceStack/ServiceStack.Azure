@@ -22,7 +22,7 @@ namespace ServiceStack.Azure.Messaging
 
         public ServiceBusMqServer(string connectionString)
         {
-            MessageFactory = new ServiceBusMqMessageFactory(connectionString);
+            MessageFactory = new ServiceBusMqMessageFactory(this, connectionString);
         }
 
         public IMessageFactory MessageFactory { get; }
@@ -60,6 +60,11 @@ namespace ServiceStack.Azure.Messaging
         {
             set => PublishResponsesWhitelist = value ? TypeConstants.EmptyStringArray : null;
         }
+        
+        /// <summary>
+        /// Disable publishing .outq Messages for Responses with no return type
+        /// </summary>
+        public bool DisableNotifyMessages { get; set; }
 
         public void Dispose()
         {
