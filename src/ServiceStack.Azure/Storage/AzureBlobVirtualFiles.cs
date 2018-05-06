@@ -127,12 +127,21 @@ namespace ServiceStack.Azure.Storage
                 : null;
         }
 
+        public string GetDirPath(CloudBlockBlob blob) => GetDirPath(blob.Parent?.Prefix);
+
+        public IEnumerable<AzureBlobVirtualFile> EnumerateFiles(string dirPath = null)
+        {
+            return Container.ListBlobs(dirPath == null ? null : dirPath + this.RealPathSeparator, useFlatBlobListing:true)
+                .OfType<CloudBlockBlob>()
+                .Select(q => new AzureBlobVirtualFile(this, new AzureBlobVirtualDirectory(this, GetDirPath(q))).Init(q));
+        }
+
         public IEnumerable<AzureBlobVirtualFile> GetImmediateFiles(string fromDirPath)
         {
             var dir = new AzureBlobVirtualDirectory(this, fromDirPath);
 
-            return Container.ListBlobs((fromDirPath == null) ? null : fromDirPath + this.RealPathSeparator)
-                .Where(q => q.GetType() == typeof(CloudBlockBlob))
+            return Container.ListBlobs(fromDirPath == null ? null : fromDirPath + this.RealPathSeparator)
+                .OfType<CloudBlockBlob>()
                 .Select(q => new AzureBlobVirtualFile(this, dir).Init(q as CloudBlockBlob));
         }
 

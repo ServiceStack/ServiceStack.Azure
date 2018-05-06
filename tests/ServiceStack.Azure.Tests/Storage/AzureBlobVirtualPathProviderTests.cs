@@ -59,9 +59,7 @@ namespace ServiceStack.Azure.Tests.Storage
                 var filePath = "file-{0}.txt".Fmt(i);
                 pathProvider.DeleteFile(filePath);
             });
-
         }
-
     }
 
 
@@ -328,6 +326,31 @@ namespace ServiceStack.Azure.Tests.Storage
             pathProvider.DeleteFolder("e");
 
             Assert.That(pathProvider.GetAllFiles().ToList().Count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void Can_GetAllMatchingFiles_in_nested_directories()
+        {
+            var pathProvider = GetPathProvider();
+
+            var allFilePaths = new[] {
+                "a/b/c/testfile-abc1.txt",
+                "a/b/c/d/e/f/g/testfile-abcdefg1.txt",
+            };
+
+            allFilePaths.Each(x => pathProvider.WriteFile(x, x.SplitOnLast('.').First().SplitOnLast('/').Last()));
+            
+            Assert.That(pathProvider.GetDirectory("a/b/c").GetAllMatchingFiles("testfile-abc1.txt").Count(), Is.EqualTo(1));
+            Assert.That(pathProvider.GetDirectory("a/b").GetAllMatchingFiles("testfile-abc1.txt").Count(), Is.EqualTo(1));
+            Assert.That(pathProvider.GetDirectory("a").GetAllMatchingFiles("testfile-abc1.txt").Count(), Is.EqualTo(1));
+
+            Assert.That(pathProvider.GetDirectory("a/b/c/d/e/f/g").GetAllMatchingFiles("testfile-abcdefg1.txt").Count(), Is.EqualTo(1));
+            Assert.That(pathProvider.GetDirectory("a/b/c/d/e/f").GetAllMatchingFiles("testfile-abcdefg1.txt").Count(), Is.EqualTo(1));
+            Assert.That(pathProvider.GetDirectory("a/b/c/d/e").GetAllMatchingFiles("testfile-abcdefg1.txt").Count(), Is.EqualTo(1));
+            Assert.That(pathProvider.GetDirectory("a/b/c/d").GetAllMatchingFiles("testfile-abcdefg1.txt").Count(), Is.EqualTo(1));
+            Assert.That(pathProvider.GetDirectory("a/b/c").GetAllMatchingFiles("testfile-abcdefg1.txt").Count(), Is.EqualTo(1));
+            Assert.That(pathProvider.GetDirectory("a/b").GetAllMatchingFiles("testfile-abcdefg1.txt").Count(), Is.EqualTo(1));
+            Assert.That(pathProvider.GetDirectory("a").GetAllMatchingFiles("testfile-abcdefg1.txt").Count(), Is.EqualTo(1));
         }
 
         [Test]

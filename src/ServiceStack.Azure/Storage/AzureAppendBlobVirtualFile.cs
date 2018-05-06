@@ -40,6 +40,8 @@ namespace ServiceStack.Azure.Storage
 
         public override string VirtualPath => FilePath;
 
+        public string DirPath => base.Directory.VirtualPath;
+
         public override Stream OpenRead()
         {
             return Blob.OpenRead();
@@ -48,7 +50,8 @@ namespace ServiceStack.Azure.Storage
         public override void Refresh()
         {
             var blob = pathProvider.Container.GetAppendBlobReference(Blob.Name);
-            if (!blob.Exists()) return;
+            if (!blob.Exists()) 
+                return;
 
             Init(blob);
         }

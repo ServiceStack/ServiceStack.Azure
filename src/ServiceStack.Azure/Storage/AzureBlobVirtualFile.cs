@@ -40,6 +40,8 @@ namespace ServiceStack.Azure.Storage
 
         public override string VirtualPath => FilePath;
 
+        public string DirPath => base.Directory.VirtualPath;
+
         public override Stream OpenRead()
         {
             return Blob.OpenRead();

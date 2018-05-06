@@ -132,13 +132,22 @@ namespace ServiceStack.Azure.Storage
                 : null;
         }
 
+        public string GetDirPath(CloudAppendBlob blob) => GetDirPath(blob.Parent?.Prefix);
+
+        public IEnumerable<AzureAppendBlobVirtualFile> EnumerateFiles(string dirPath = null)
+        {
+            return Container.ListBlobs(dirPath == null ? null : dirPath + this.RealPathSeparator, useFlatBlobListing:true)
+                .OfType<CloudAppendBlob>()
+                .Select(q => new AzureAppendBlobVirtualFile(this, new AzureAppendBlobVirtualDirectory(this, GetDirPath(q))).Init(q));
+        }
+
         public IEnumerable<AzureAppendBlobVirtualFile> GetImmediateFiles(string fromDirPath)
         {
             var dir = new AzureAppendBlobVirtualDirectory(this, fromDirPath);
 
             return Container.ListBlobs((fromDirPath == null) ? null : fromDirPath + this.RealPathSeparator)
-                .Where(q => q.GetType() == typeof(CloudAppendBlob))
-                .Select(q => new AzureAppendBlobVirtualFile(this, dir).Init(q as CloudAppendBlob));
+                .OfType<CloudAppendBlob>()
+                .Select(q => new AzureAppendBlobVirtualFile(this, dir).Init(q));
         }
 
         public string SanitizePath(string filePath)

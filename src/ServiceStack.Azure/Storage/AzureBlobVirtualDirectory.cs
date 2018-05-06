@@ -9,59 +9,62 @@ namespace ServiceStack.Azure.Storage
 {
     public class AzureBlobVirtualDirectory : AbstractVirtualDirectoryBase
     {
-        private readonly AzureBlobVirtualFiles pathProvider;
+        public AzureBlobVirtualFiles PathProvider { get; }
 
-        public AzureBlobVirtualDirectory(AzureBlobVirtualFiles pathProvider, string directoryPath)
+        public AzureBlobVirtualDirectory(AzureBlobVirtualFiles pathProvider, string dirPath)
             : base(pathProvider)
         {
-            this.pathProvider = pathProvider;
-            this.DirectoryPath = directoryPath;
+            this.PathProvider = pathProvider;
+            this.DirPath = dirPath;
 
-            if (directoryPath == "/" || directoryPath.IsNullOrEmpty())
+            if (dirPath == "/" || dirPath.IsNullOrEmpty())
                 return;
 
-            var separatorIndex = directoryPath.LastIndexOf(pathProvider.RealPathSeparator, StringComparison.Ordinal);
+            var separatorIndex = dirPath.LastIndexOf(pathProvider.RealPathSeparator, StringComparison.Ordinal);
 
             ParentDirectory = new AzureBlobVirtualDirectory(pathProvider,
-                separatorIndex == -1 ? string.Empty : directoryPath.Substring(0, separatorIndex));
+                separatorIndex == -1 ? string.Empty : dirPath.Substring(0, separatorIndex));
         }
 
-        public string DirectoryPath { get; set; }
+        public string DirPath { get; set; }
+
+        [Obsolete("Use DirPath")]
+        public string DirectoryPath => DirPath;
 
         public override IEnumerable<IVirtualDirectory> Directories
         {
             get
             {
-                var blobs = pathProvider.Container.ListBlobs(DirectoryPath == null
+                var blobs = PathProvider.Container.ListBlobs(DirPath == null
                     ? null
-                    : DirectoryPath + pathProvider.RealPathSeparator);
+                    : DirPath + PathProvider.RealPathSeparator);
 
                 return blobs.Where(q => q.GetType() == typeof(CloudBlobDirectory))
                     .Select(q =>
                     {
                         var blobDir = (CloudBlobDirectory)q;
-                        return new AzureBlobVirtualDirectory(pathProvider, blobDir.Prefix.Trim(pathProvider.RealPathSeparator[0]));
+                        return new AzureBlobVirtualDirectory(PathProvider, blobDir.Prefix.Trim(PathProvider.RealPathSeparator[0]));
                     });
             }
         }
 
         public override DateTime LastModified => throw new NotImplementedException();
 
-        public override IEnumerable<IVirtualFile> Files => pathProvider.GetImmediateFiles(this.DirectoryPath);
+        public override IEnumerable<IVirtualFile> Files => PathProvider.GetImmediateFiles(this.DirPath);
 
         // Azure Blob storage directories only exist if there are contents beneath them
         public bool Exists()
         {
-            var ret = pathProvider.Container.ListBlobs(this.DirectoryPath, false)
-                .Where(q => q.GetType() == typeof(CloudBlobDirectory))
-                .Any();
+            var ret = PathProvider.Container
+                .ListBlobs(this.DirPath, false)
+                .Any(q => q.GetType() == typeof(CloudBlobDirectory));
 
             return ret;
         }
 
-        public override string Name => DirectoryPath?.SplitOnLast(pathProvider.RealPathSeparator).Last();
+        public override string Name => DirPath?.SplitOnLast(PathProvider.RealPathSeparator).Last();
 
-        public override string VirtualPath => DirectoryPath;
+        public override string VirtualPath => DirPath;
 
         public override IEnumerator<IVirtualNode> GetEnumerator()
         {
@@ -70,30 +73,44 @@ namespace ServiceStack.Azure.Storage
 
         protected override IVirtualFile GetFileFromBackingDirectoryOrDefault(string fileName)
         {
-            fileName = pathProvider.CombineVirtualPath(this.DirectoryPath, pathProvider.SanitizePath(fileName));
-            return pathProvider.GetFile(fileName);
+            fileName = PathProvider.CombineVirtualPath(this.DirPath, PathProvider.SanitizePath(fileName));
+            return PathProvider.GetFile(fileName);
         }
 
         protected override IEnumerable<IVirtualFile> GetMatchingFilesInDir(string globPattern)
         {
-            var dir = (this.DirectoryPath == null) ? null : this.DirectoryPath + pathProvider.RealPathSeparator;
+            var dir = (this.DirPath == null) ? null : this.DirPath + PathProvider.RealPathSeparator;
 
-            var ret = pathProvider.Container.ListBlobs(dir)
+            var ret = PathProvider.Container.ListBlobs(dir)
                 .Where(q => q.GetType() == typeof(CloudBlockBlob))
                 .Where(q =>
                 {
                     var x = ((CloudBlockBlob)q).Name.Glob(globPattern);
                     return x;
                 })
-                .Select(q => new AzureBlobVirtualFile(pathProvider, this).Init(q as CloudBlockBlob));
+                .Select(q => new AzureBlobVirtualFile(PathProvider, this).Init(q as CloudBlockBlob));
             return ret;
         }
 
         protected override IVirtualDirectory GetDirectoryFromBackingDirectoryOrDefault(string directoryName)
         {
-            return new AzureBlobVirtualDirectory(this.pathProvider, pathProvider.SanitizePath(DirectoryPath.CombineWith(directoryName)));
+            return new AzureBlobVirtualDirectory(this.PathProvider, PathProvider.SanitizePath(DirPath.CombineWith(directoryName)));
         }
-
-
+        
+        public override IEnumerable<IVirtualFile> GetAllMatchingFiles(string globPattern, int maxDepth = int.MaxValue)
+        {
+            if (IsRoot)
+            {
+                return PathProvider.EnumerateFiles().Where(x => 
+                    (x.DirPath == null || x.DirPath.CountOccurrencesOf('/') < maxDepth-1)
+                    && x.Name.Glob(globPattern));
+            }
+            
+            return PathProvider.EnumerateFiles(DirPath).Where(x => 
+                x.DirPath != null
+                && x.DirPath.CountOccurrencesOf('/') < maxDepth-1
+                && x.DirPath.StartsWith(DirPath)
+                && x.Name.Glob(globPattern));
+        }
     }
 }

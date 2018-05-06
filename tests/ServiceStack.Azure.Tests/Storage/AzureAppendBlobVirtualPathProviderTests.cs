@@ -58,14 +58,8 @@ namespace ServiceStack.Azure.Tests.Storage
                 var filePath = "file-{0}.txt".Fmt(i);
                 pathProvider.DeleteFile(filePath);
             });
-
-            
-
         }
-
     }
-
-
    
     public abstract class VirtualAppendPathProviderTests
     {
@@ -305,8 +299,7 @@ namespace ServiceStack.Azure.Tests.Storage
             Assert.That(pathProvider.GetAllFiles().ToList().Count, Is.EqualTo(0));
         }
 
-        [Test]
-        
+        [Test]        
         public void Does_append_to_file()
         {
             var pathProvider = GetPathProvider();
