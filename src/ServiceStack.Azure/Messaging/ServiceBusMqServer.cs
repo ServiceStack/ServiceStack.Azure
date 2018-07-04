@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ServiceStack.Azure.Messaging
 {
@@ -51,7 +49,7 @@ namespace ServiceStack.Azure.Messaging
         public List<Type> RegisteredTypes => handlerMap.Keys.ToList();
 
         /// <summary>
-        /// Opt-in to only publish responses on this white list. 
+        /// Opt-in to only publish responses on this white list.
         /// Publishes all responses by default.
         /// </summary>
         public string[] PublishResponsesWhitelist { get; set; }
@@ -60,7 +58,7 @@ namespace ServiceStack.Azure.Messaging
         {
             set => PublishResponsesWhitelist = value ? TypeConstants.EmptyStringArray : null;
         }
-        
+
         /// <summary>
         /// Disable publishing .outq Messages for Responses with no return type
         /// </summary>

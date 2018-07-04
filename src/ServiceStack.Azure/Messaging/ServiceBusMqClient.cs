@@ -2,8 +2,6 @@
 using ServiceStack.Text;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 #if NETSTANDARD2_0
 using Microsoft.Azure.ServiceBus;
@@ -138,7 +136,7 @@ namespace ServiceStack.Azure.Messaging
 
                 if (!task.IsCompleted)
                     throw new TimeoutException("Reached timeout while getting message from client");
-            } else 
+            } else
             {
                 await task;
             }
@@ -170,7 +168,7 @@ namespace ServiceStack.Azure.Messaging
         {
             if (parentFactory.MqServer.DisableNotifyMessages)
                 return;
-            
+
             Publish(queueName, message);
         }
 

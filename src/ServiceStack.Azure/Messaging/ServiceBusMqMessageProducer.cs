@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ServiceStack.Messaging;
 using ServiceStack.Text;
 #if NETSTANDARD2_0
@@ -56,6 +55,7 @@ namespace ServiceStack.Azure.Messaging
             message.ReplyTo = message.ReplyTo.SafeQueueName();
 
             var sbClient = parentFactory.GetOrCreateClient(queueName);
+            parentFactory.RegisterQueueByName(queueName);
             using (JsConfig.With(includeTypeInfo: true))
             {
                 var msgBody = JsonSerializer.SerializeToString(message, typeof(IMessage));
@@ -86,7 +86,7 @@ namespace ServiceStack.Azure.Messaging
              parentFactory.address,
              queueName,
              ReceiveMode.ReceiveAndDelete);  //should be ReceiveMode.PeekLock, but it does not delete messages from queue on CompleteAsync()
-             
+
             sbReceivers.Add(queueName, messageReceiver);
             return messageReceiver;
         }
