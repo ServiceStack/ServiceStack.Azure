@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 #if NETSTANDARD2_0
 using Microsoft.Azure.ServiceBus;
+using Microsoft.Azure.ServiceBus.Management;
 #else
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
@@ -18,6 +19,8 @@ namespace ServiceStack.Azure.Messaging
         protected internal readonly string address;
 #if !NETSTANDARD2_0
         protected internal readonly NamespaceManager namespaceManager;
+#else
+        protected internal readonly ManagementClient managementClient;
 #endif
 
         internal Dictionary<Type, IMessageHandlerFactory> handlerMap;
@@ -34,6 +37,8 @@ namespace ServiceStack.Azure.Messaging
             this.address = address;
 #if !NETSTANDARD2_0
             this.namespaceManager = NamespaceManager.CreateFromConnectionString(address);
+#else
+            this.managementClient = new ManagementClient(address);
 #endif
         }
 
@@ -59,7 +64,7 @@ namespace ServiceStack.Azure.Messaging
 
             queueMap = new Dictionary<string, Type>();
 
-            var mqSuffixes = new [] { ".inq", ".outq", ".priorityq", ".dlq" };
+            var mqSuffixes = new[] { ".inq", ".outq", ".priorityq", ".dlq" };
             foreach (var type in this.handlerMap.Keys)
             {
                 foreach (var mqSuffix in mqSuffixes)
@@ -69,11 +74,7 @@ namespace ServiceStack.Azure.Messaging
 
                     if (!queueMap.ContainsKey(queueName))
                         queueMap.Add(queueName, type);
-#if !NETSTANDARD2_0
-                    var mqDesc = new QueueDescription(queueName);
-                    if (!namespaceManager.QueueExists(queueName))
-                        namespaceManager.CreateQueue(mqDesc);
-#endif
+                    RegisterQueueByName(queueName);
                 }
 
                 var mqNames = new QueueNames(type);
@@ -85,29 +86,27 @@ namespace ServiceStack.Azure.Messaging
         private void AddQueueHandler(string queueName)
         {
             queueName = queueName.SafeQueueName();
-
+            var sbClient = GetOrCreateClient(queueName);
 #if NETSTANDARD2_0
-            var sbClient = new QueueClient(address, queueName, ReceiveMode.PeekLock);
             var sbWorker = new ServiceBusMqWorker(this, CreateMessageQueueClient(), queueName, sbClient);
             sbClient.RegisterMessageHandler(sbWorker.HandleMessageAsync,
                 new MessageHandlerOptions(
-                    (eventArgs) => Task.CompletedTask) 
-                { 
+                    (eventArgs) => Task.CompletedTask)
+                {
                     MaxConcurrentCalls = 1,
                     AutoComplete = false
                 });
 #else
             var options = new OnMessageOptions
             {
-                // Cannot use AutoComplete because our HandleMessage throws errors into SS's handlers; this would 
+                // Cannot use AutoComplete because our HandleMessage throws errors into SS's handlers; this would
                 // normally release the BrokeredMessage back to the Azure Service Bus queue, which we don't actually want
 
-                AutoComplete = false,          
+                AutoComplete = false,
                 //AutoRenewTimeout = new TimeSpan()
                 MaxConcurrentCalls = 1
             };
 
-            var sbClient = QueueClient.CreateFromConnectionString(address, queueName, ReceiveMode.PeekLock);
             var sbWorker = new ServiceBusMqWorker(this, CreateMessageQueueClient(), queueName, sbClient);
             sbClient.OnMessage(sbWorker.HandleMessage, options);
 #endif
@@ -124,28 +123,49 @@ namespace ServiceStack.Azure.Messaging
             sbClients.Clear();
         }
 
-        protected internal QueueClient GetOrCreateClient(string queueName)
+        protected internal QueueClient GetOrCreateClient(string queueName, ReceiveMode receiveMode = ReceiveMode.PeekLock)
         {
             queueName = queueName.SafeQueueName();
-            
+
             if (sbClients.ContainsKey(queueName))
                 return sbClients[queueName];
 
-#if !NETSTANDARD2_0
-            // Create queue on ServiceBus namespace if it doesn't exist
-            var qd = new QueueDescription(queueName);
-            if (!namespaceManager.QueueExists(queueName))
-                namespaceManager.CreateQueue(qd);
-#endif
+            var qd = RegisterQueueByName(queueName);
 
 #if NETSTANDARD2_0
-            var sbClient = new QueueClient(address, queueName);
+            var sbClient = new QueueClient(address, qd.Path, receiveMode);
 #else
-            var sbClient = QueueClient.CreateFromConnectionString(address, qd.Path);
+            var sbClient = QueueClient.CreateFromConnectionString(address, qd.Path, receiveMode);
 #endif
-
             sbClient = sbClients.GetOrAdd(queueName, sbClient);
             return sbClient;
+        }
+
+        protected internal QueueDescription RegisterQueueByName(string queueName)
+        {
+            var mqDesc = new QueueDescription(queueName);
+#if !NETSTANDARD2_0
+                    if (!namespaceManager.QueueExists(queueName))
+                        namespaceManager.CreateQueue(mqDesc);
+#else
+            try
+            {
+                managementClient.QueueExistsAsync(queueName)
+                    .ContinueWith(async asc =>
+                    {
+                        if (!asc.Result)
+                        {
+                            await managementClient.CreateQueueAsync(mqDesc)
+                                .ConfigureAwait(continueOnCapturedContext: true);
+                        }
+                    });
+            }
+            catch (AggregateException aex)
+            {
+                throw aex.Flatten();
+            }
+#endif
+            return mqDesc;
         }
     }
 }
