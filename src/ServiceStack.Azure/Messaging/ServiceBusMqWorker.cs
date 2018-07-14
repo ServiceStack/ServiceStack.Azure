@@ -35,7 +35,7 @@ namespace ServiceStack.Azure.Messaging
 #if NETSTANDARD2_0
         public async Task HandleMessageAsync(Microsoft.Azure.ServiceBus.Message msg, CancellationToken token)
         {
-            var strMessage = msg.GetBodyString();
+            var strMessage = msg.Body.FromMessageBody();
             IMessage iMessage = (IMessage)JsonSerializer.DeserializeFromString(strMessage, typeof(IMessage));
             if (iMessage != null)
             {
@@ -57,13 +57,15 @@ namespace ServiceStack.Azure.Messaging
         {
             try
             {
-                string strMessage = msg.GetBody<string>();
+                string strMessage = msg.GetBody<string>().FromMessageBody();
                 IMessage iMessage = (IMessage)JsonSerializer.DeserializeFromString(strMessage, typeof(IMessage));
                 if (iMessage != null)
                 {
-                    iMessage.Meta = new Dictionary<string, string>();
-                    iMessage.Meta[ServiceBusMqClient.LockTokenMeta] = msg.LockToken.ToString();
-                    iMessage.Meta[ServiceBusMqClient.QueueNameMeta] = queueName;
+                    iMessage.Meta = new Dictionary<string, string>
+                    {
+                        [ServiceBusMqClient.LockTokenMeta] = msg.LockToken.ToString(),
+                        [ServiceBusMqClient.QueueNameMeta] = queueName
+                    };
                 }
                 Type msgType = iMessage.GetType().GetGenericArguments()[0];
                 var messageHandlerFactory = mqMessageFactory.handlerMap[msgType];

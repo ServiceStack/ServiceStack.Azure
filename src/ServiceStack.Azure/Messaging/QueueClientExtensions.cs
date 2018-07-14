@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using System;
 using System.Text;
+using ServiceStack;
 using ServiceStack.Text;
 
 namespace ServiceStack.Azure.Messaging
@@ -22,11 +23,11 @@ namespace ServiceStack.Azure.Messaging
 
             return msg;
         }
+#endif
+        public static string FromMessageBody(this byte[] messageBody) => FromMessageBody(messageBody.FromUtf8Bytes());
 
-        public static string GetBodyString(this Microsoft.Azure.ServiceBus.Message message)
+        public static string FromMessageBody(this string strMessage)
         {
-            var strMessage = Encoding.UTF8.GetString(message.Body);
-            
             //Windows Azure Client is not wire-compatible with .NET Core client
             //we check if the message comes from Windows client and cut off 
             //64 header chars and 2 footer chars
@@ -38,7 +39,6 @@ namespace ServiceStack.Azure.Messaging
 
             return strMessage;
         }
-#endif
 
         internal static string SafeQueueName(this string queueName) =>
             queueName?.Replace(":", ".");
