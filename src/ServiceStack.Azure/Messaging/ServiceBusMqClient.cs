@@ -61,10 +61,10 @@ namespace ServiceStack.Azure.Messaging
 #if NETSTANDARD2_0
             if (!(mqResponse is Microsoft.Azure.ServiceBus.Message msg))
                 return null;
-            var msgBody = msg.GetBodyString();
+            var msgBody = msg.Body.FromMessageBody();
 #else
             if (!(mqResponse is BrokeredMessage msg)) return null;
-            var msgBody = msg.GetBody<string>();
+            var msgBody = msg.GetBody<string>().FromMessageBody();
 #endif
 
             var iMessage = (IMessage)JsonSerializer.DeserializeFromString(msgBody, typeof(IMessage));
