@@ -3,6 +3,7 @@ using ServiceStack.Messaging;
 using ServiceStack.Text;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -57,7 +58,7 @@ namespace ServiceStack.Azure.Messaging
         {
             try
             {
-                string strMessage = msg.GetBody<string>().FromMessageBody();
+                var strMessage = msg.GetBody<Stream>().FromMessageBody();
                 IMessage iMessage = (IMessage)JsonSerializer.DeserializeFromString(strMessage, typeof(IMessage));
                 if (iMessage != null)
                 {

@@ -2,6 +2,7 @@
 using ServiceStack.Text;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -63,8 +64,9 @@ namespace ServiceStack.Azure.Messaging
                 return null;
             var msgBody = msg.Body.FromMessageBody();
 #else
-            if (!(mqResponse is BrokeredMessage msg)) return null;
-            var msgBody = msg.GetBody<string>().FromMessageBody();
+            if (!(mqResponse is BrokeredMessage msg)) 
+                return null;
+            var msgBody = msg.GetBody<Stream>().FromMessageBody();
 #endif
 
             var iMessage = (IMessage)JsonSerializer.DeserializeFromString(msgBody, typeof(IMessage));

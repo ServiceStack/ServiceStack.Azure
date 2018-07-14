@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using System;
+using System.IO;
 using System.Text;
 using ServiceStack;
 using ServiceStack.Text;
@@ -25,6 +26,14 @@ namespace ServiceStack.Azure.Messaging
         }
 #endif
         public static string FromMessageBody(this byte[] messageBody) => FromMessageBody(messageBody.FromUtf8Bytes());
+
+        public static string FromMessageBody(this Stream messageBody)
+        {
+            using (messageBody)
+            {
+                return messageBody.ReadToEnd().FromMessageBody();
+            }                
+        }
 
         public static string FromMessageBody(this string strMessage)
         {
