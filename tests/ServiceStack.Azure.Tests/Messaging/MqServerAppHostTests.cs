@@ -437,7 +437,7 @@ namespace ServiceStack.Azure.Tests.Messaging
             ((MqTestsAppHost)appHost).evt.WaitOne();
         }
 
-        [Test]
+        [Test, Ignore("Benchmark")]
         [Explicit]
         public void CheckPerf()
         {

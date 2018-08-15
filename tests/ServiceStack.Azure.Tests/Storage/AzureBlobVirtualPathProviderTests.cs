@@ -18,6 +18,7 @@ namespace ServiceStack.Azure.Tests.Storage
     {
         public const string ContainerName = "ss-ci-test";
 
+        // Requires 'Microsoft Azure Storage Emulator' running
         private readonly CloudStorageAccount storageAccount = CloudStorageAccount.DevelopmentStorageAccount;
 
         public override IVirtualPathProvider GetPathProvider()

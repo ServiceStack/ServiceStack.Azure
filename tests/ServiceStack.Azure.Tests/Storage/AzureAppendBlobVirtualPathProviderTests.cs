@@ -19,7 +19,7 @@ namespace ServiceStack.Azure.Tests.Storage
         public const string ContainerName = "ss-ci-test-append";
 
         // you must provide an azure account to run these tests
-        private readonly CloudStorageAccount storageAccount = CloudStorageAccount.Parse("");
+        private readonly CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("AZURE_BLOB_CONNECTION_STRING"));
 
         public override IVirtualPathProvider GetPathProvider()
         {
@@ -105,7 +105,6 @@ namespace ServiceStack.Azure.Tests.Storage
         }
 
         [Test]
-        
         public void Does_refresh_LastModified()
         {
             var pathProvider = GetPathProvider();
