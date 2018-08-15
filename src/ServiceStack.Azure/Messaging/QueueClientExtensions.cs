@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
 using System;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using ServiceStack;
 using ServiceStack.Text;
@@ -10,13 +12,14 @@ namespace ServiceStack.Azure.Messaging
 
     public static class QueueClientExtensions
     {
-#if NETSTANDARD2_0
 
-        static readonly System.Reflection.PropertyInfo innerReceiverProperty = typeof(Microsoft.Azure.ServiceBus.QueueClient).GetProperty("InnerReceiver");
+#if NETSTANDARD2_0
+        static readonly PropertyInfo InnerReceiverProperty =
+            typeof(Microsoft.Azure.ServiceBus.QueueClient).GetProperties(BindingFlags.NonPublic | BindingFlags.Instance).First(x => x.Name == "InnerReceiver");
 
         public static async Task<Microsoft.Azure.ServiceBus.Message> ReceiveAsync(this Microsoft.Azure.ServiceBus.QueueClient sbClient, TimeSpan? timeout)
         {
-            var receiver = (Microsoft.Azure.ServiceBus.Core.MessageReceiver)innerReceiverProperty.GetValue(sbClient);
+            var receiver = (Microsoft.Azure.ServiceBus.Core.MessageReceiver)InnerReceiverProperty.GetValue(sbClient);
 
             var msg = timeout.HasValue
                 ? await receiver.ReceiveAsync(timeout.Value)
@@ -25,6 +28,7 @@ namespace ServiceStack.Azure.Messaging
             return msg;
         }
 #endif
+
         public static string FromMessageBody(this byte[] messageBody) => FromMessageBody(messageBody.FromUtf8Bytes());
 
         public static string FromMessageBody(this Stream messageBody)
