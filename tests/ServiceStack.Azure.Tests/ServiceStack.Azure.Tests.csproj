@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net46;netcoreapp2.0</TargetFrameworks>
-    <AssemblyName>ServiceStack.Azure.Tests</AssemblyName>
-    <PackageId>ServiceStack.Azure.Tests</PackageId>
+    <TargetFrameworks>net46;netcoreapp2.1</TargetFrameworks>
     <DebugType>portable</DebugType>
+    <AssemblyName>ServiceStack.Azure.Tests</AssemblyName>
     <OutputType>Library</OutputType>
+    <PackageId>ServiceStack.Azure.Tests</PackageId>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -14,11 +14,19 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <DebugType Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'netcoreapp2.1'">Full</DebugType>
+  </PropertyGroup>
+  
   <ItemGroup>
+    <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
+    <PackageReference Include="NUnit" Version="3.10.1" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.1.1" />
-    <PackageReference Include="NUnit" Version="3.9.0" />
+    <PackageReference Include="System.Memory" Version="4.5.1" />    
     <ProjectReference Include="..\..\src\ServiceStack.Azure\ServiceStack.Azure.csproj" />
   </ItemGroup>
 
@@ -37,29 +45,17 @@
     <Reference Include="..\..\lib\net45\ServiceStack.dll" />
   </ItemGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
     <DefineConstants>$(DefineConstants);NETCORE_SUPPORT;NETCORE</DefineConstants>
   </PropertyGroup>
 
-  <!-- Enable NunitLite build, becase NUnit is not supported on .NET Core SDK 1.0.2 
-   https://github.com/nunit/dotnet-test-nunit/issues/91 
-   To enable NUnitLite pass /p:NUNITLITE=1 into msbuild arguments
-   -->
-  <PropertyGroup Condition=" '$(NUNITLITE)' != '' ">
-    <OutputType>Exe</OutputType>
-    <DefineConstants>$(DefineConstants);NUNITLITE</DefineConstants>
-  </PropertyGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
+    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Azure.Management.ServiceBus" Version="1.4.0" />
 
-  <ItemGroup Condition=" '$(NUNITLITE)' != '' ">
-    <PackageReference Include="NUnitLite" Version="3.9.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
-    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Primitives" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.1.1" />
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
     <PackageReference Include="System.Collections.Specialized" Version="4.3.0" />
 
