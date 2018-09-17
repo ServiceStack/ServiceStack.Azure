@@ -54,7 +54,7 @@ namespace ServiceStack.Azure.Messaging
         }
 
         internal static string SafeQueueName(this string queueName) =>
-            queueName?.Replace(":", ".");
+            queueName?.Replace(":", ".").Replace("[]", "Array");
     }
     
 }
