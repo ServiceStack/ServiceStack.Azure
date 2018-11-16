@@ -43,7 +43,7 @@ namespace ServiceStack.Azure.Messaging
             try
             {
 #if NETSTANDARD2_0
-                sbClient.CompleteAsync(lockToken).Wait();
+                sbClient.CompleteAsync(lockToken).GetAwaiter().GetResult();
 #else
                 sbClient.Complete(Guid.Parse(lockToken));
 #endif
@@ -64,7 +64,7 @@ namespace ServiceStack.Azure.Messaging
                 return null;
             var msgBody = msg.Body.FromMessageBody();
 #else
-            if (!(mqResponse is BrokeredMessage msg)) 
+            if (!(mqResponse is BrokeredMessage msg))
                 return null;
             var msgBody = msg.GetBody<Stream>().FromMessageBody();
 #endif
@@ -140,7 +140,7 @@ namespace ServiceStack.Azure.Messaging
 
                 if (!task.IsCompleted)
                     throw new TimeoutException("Reached timeout while getting message from client");
-            } else 
+            } else
             {
                 await task;
             }
@@ -172,7 +172,7 @@ namespace ServiceStack.Azure.Messaging
         {
             if (parentFactory.MqServer.DisableNotifyMessages)
                 return;
-            
+
             Publish(queueName, message);
         }
 
