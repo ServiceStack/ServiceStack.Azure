@@ -67,7 +67,7 @@ namespace ServiceStack.Azure.Messaging
                 };
                 sbClient.SendAsync(msg).Wait();
 #else
-                var msg = new BrokeredMessage(msgBody) {MessageId = message.Id.ToString()};
+                var msg = new BrokeredMessage(msgBody) { MessageId = message.Id.ToString() };
 
                 sbClient.Send(msg);
 #endif
@@ -86,7 +86,7 @@ namespace ServiceStack.Azure.Messaging
              parentFactory.address,
              queueName,
              ReceiveMode.ReceiveAndDelete);  //should be ReceiveMode.PeekLock, but it does not delete messages from queue on CompleteAsync()
-             
+
             sbReceivers.Add(queueName, messageReceiver);
             return messageReceiver;
         }
