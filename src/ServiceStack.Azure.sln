@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{DCEE435D
 		..\build\build.proj = ..\build\build.proj
 		..\README.md = ..\README.md
 		ServiceStack.Azure\ServiceStack.Azure.Core.csproj = ServiceStack.Azure\ServiceStack.Azure.Core.csproj
+		Directory.Build.props = Directory.Build.props
 	EndProjectSection
 EndProject
 Global
