@@ -12,8 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{DCEE435D
 		..\build\build.bat = ..\build\build.bat
 		..\build\build.proj = ..\build\build.proj
 		..\README.md = ..\README.md
-		..\NuGet\ServiceStack.Azure.Core\servicestack.azure.core.nuspec = ..\NuGet\ServiceStack.Azure.Core\servicestack.azure.core.nuspec
-		..\NuGet\ServiceStack.Azure\servicestack.azure.nuspec = ..\NuGet\ServiceStack.Azure\servicestack.azure.nuspec
+		ServiceStack.Azure\ServiceStack.Azure.Core.csproj = ServiceStack.Azure\ServiceStack.Azure.Core.csproj
 	EndProjectSection
 EndProject
 Global

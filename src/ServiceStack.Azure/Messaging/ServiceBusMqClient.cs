@@ -48,7 +48,7 @@ namespace ServiceStack.Azure.Messaging
                 sbClient.Complete(Guid.Parse(lockToken));
 #endif
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }

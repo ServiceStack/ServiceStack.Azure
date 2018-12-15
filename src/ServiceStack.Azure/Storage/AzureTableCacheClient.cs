@@ -319,13 +319,15 @@ namespace ServiceStack.Azure.Storage
 
         private string Serialize<T>(T value)
         {
-            using (JsConfig.With(excludeTypeInfo: false))
+            using (JsConfig.With(new Text.Config {ExcludeTypeInfo = false}))
+            {
                 return serializer.SerializeToString<T>(value);
+            }
         }
 
         private T Deserialize<T>(string text)
         {
-            using (JsConfig.With(excludeTypeInfo: false))
+            using (JsConfig.With(new Text.Config {ExcludeTypeInfo = false}))
             {
                 return (text.IsNullOrEmpty()) ? default(T) :
                     serializer.DeserializeFromString<T>(text);

@@ -74,7 +74,7 @@ namespace ServiceStack.Azure.Messaging
 
                 messageHandler.ProcessMessage(mqClient, iMessage);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }

@@ -56,7 +56,7 @@ namespace ServiceStack.Azure.Messaging
             message.ReplyTo = message.ReplyTo.SafeQueueName();
 
             var sbClient = parentFactory.GetOrCreateClient(queueName);
-            using (JsConfig.With(includeTypeInfo: true))
+            using (JsConfig.With(new Text.Config { IncludeTypeInfo = true }))
             {
                 var msgBody = JsonSerializer.SerializeToString(message, typeof(IMessage));
 #if NETSTANDARD2_0

@@ -1,59 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
-    <AssemblyName>ServiceStack.Azure</AssemblyName>
     <PackageId>ServiceStack.Azure</PackageId>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' != 'Debug' ">
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Optimize>true</Optimize>
+    <AssemblyName>ServiceStack.Azure</AssemblyName>
+    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
+    <Title>ServiceStack integration for Azure Services</Title>
+    <PackageDescription>
+      ServiceStack integration for Azure Services in Azure and Windows ServiceBus, 
+      Azure Blob Storage / Virtual File System,
+      Azure Table Storage / Cache Provider.
+    </PackageDescription>
+    <PackageTags>Azure;Windows;ServiceBus;Blob;Table;Storage;WebServices;Cache;CacheClient</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ServiceStack" Version="$(Version)" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.2" />
   </ItemGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">
-    <DefineConstants>$(DefineConstants);NET45</DefineConstants>
-    <SignAssembly>True</SignAssembly>
-    <DelaySign>False</DelaySign>
-    <AssemblyOriginatorKeyFile>../servicestack.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
     <PackageReference Include="WindowsAzure.ServiceBus" Version="4.1.11" />
     <PackageReference Include="Microsoft.WindowsAzure.ConfigurationManager" Version="3.2.3" />
-
-    <Reference Include="..\..\lib\net45\ServiceStack.Interfaces.dll" />
-    <Reference Include="..\..\lib\net45\ServiceStack.Text.dll" />
-    <Reference Include="..\..\lib\net45\ServiceStack.Common.dll" />
-    <Reference Include="..\..\lib\net45\ServiceStack.Client.dll" />
-    <Reference Include="..\..\lib\net45\ServiceStack.dll" />
   </ItemGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <DefineConstants>$(DefineConstants);NETSTANDARD2_0</DefineConstants>
-  </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="Microsoft.Azure.ServiceBus" Version="3.1.0" />
     <PackageReference Include="Microsoft.Azure.Management.ServiceBus" Version="1.4.0" />
-
-    <Reference Include="..\..\lib\netstandard2.0\ServiceStack.Interfaces.dll" />
-    <Reference Include="..\..\lib\netstandard2.0\ServiceStack.Text.dll" />
-    <Reference Include="..\..\lib\netstandard2.0\ServiceStack.Common.dll" />
-    <Reference Include="..\..\lib\netstandard2.0\ServiceStack.Client.dll" />
-    <Reference Include="..\..\lib\netstandard2.0\ServiceStack.dll" />
   </ItemGroup>
 
 </Project>
