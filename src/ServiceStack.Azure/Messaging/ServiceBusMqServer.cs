@@ -62,6 +62,20 @@ namespace ServiceStack.Azure.Messaging
         }
         
         /// <summary>
+        /// Opt-in to only publish .outq messages on this white list. 
+        /// Publishes all responses by default.
+        /// </summary>
+        public string[] PublishToOutqWhitelist { get; set; }
+
+        /// <summary>
+        /// Don't publish any messages to .outq
+        /// </summary>
+        public bool DisablePublishingToOutq
+        {
+            set => PublishToOutqWhitelist = value ? TypeConstants.EmptyStringArray : null;
+        }
+        
+        /// <summary>
         /// Disable publishing .outq Messages for Responses with no return type
         /// </summary>
         public bool DisableNotifyMessages { get; set; }
@@ -121,7 +135,8 @@ namespace ServiceStack.Azure.Messaging
                 RequestFilter = RequestFilter,
                 ResponseFilter = ResponseFilter,
                 RetryCount = RetryCount,
-                PublishResponsesWhitelist = PublishResponsesWhitelist
+                PublishResponsesWhitelist = PublishResponsesWhitelist,
+                PublishToOutqWhitelist = PublishToOutqWhitelist,
             };
         }
 
