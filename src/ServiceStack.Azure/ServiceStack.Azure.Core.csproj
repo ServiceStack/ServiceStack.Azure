@@ -3,6 +3,7 @@
   <PropertyGroup>
     <PackageId>ServiceStack.Azure.Core</PackageId>
     <AssemblyName>ServiceStack.Azure</AssemblyName>
+    <RootNamespace>ServiceStack.Azure</RootNamespace>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <Title>ServiceStack.Azure .NET Standard 2.0</Title>
     <PackageDescription>
