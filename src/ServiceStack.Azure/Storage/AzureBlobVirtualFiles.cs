@@ -52,7 +52,13 @@ namespace ServiceStack.Azure.Storage
         public void WriteFile(string filePath, Stream stream)
         {
             var blob = Container.GetBlockBlobReference(SanitizePath(filePath));
-            blob.Properties.ContentType = MimeTypes.GetMimeType(filePath);
+
+            if (stream.Length > 1014 * 1024 * 100) // 100 mb
+            {
+                blob.ServiceClient.DefaultRequestOptions.SingleBlobUploadThresholdInBytes = 1014 * 1024 * 10;
+                blob.ServiceClient.DefaultRequestOptions.ParallelOperationThreadCount = Environment.ProcessorCount;
+                blob.Properties.ContentType = MimeTypes.GetMimeType(filePath);
+            }
             blob.UploadFromStream(stream);
         }
 
@@ -131,7 +137,7 @@ namespace ServiceStack.Azure.Storage
 
         public IEnumerable<AzureBlobVirtualFile> EnumerateFiles(string dirPath = null)
         {
-            return Container.ListBlobs(dirPath == null ? null : dirPath + this.RealPathSeparator, useFlatBlobListing:true)
+            return Container.ListBlobs(dirPath == null ? null : dirPath + this.RealPathSeparator, useFlatBlobListing: true)
                 .OfType<CloudBlockBlob>()
                 .Select(q => new AzureBlobVirtualFile(this, new AzureBlobVirtualDirectory(this, GetDirPath(q))).Init(q));
         }
