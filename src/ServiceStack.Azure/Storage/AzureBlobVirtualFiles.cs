@@ -57,8 +57,9 @@ namespace ServiceStack.Azure.Storage
             {
                 blob.ServiceClient.DefaultRequestOptions.SingleBlobUploadThresholdInBytes = 1014 * 1024 * 10;
                 blob.ServiceClient.DefaultRequestOptions.ParallelOperationThreadCount = Environment.ProcessorCount;
-                blob.Properties.ContentType = MimeTypes.GetMimeType(filePath);
             }
+
+            blob.Properties.ContentType = MimeTypes.GetMimeType(filePath);
             blob.UploadFromStream(stream);
         }
 
