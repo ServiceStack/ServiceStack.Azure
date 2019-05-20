@@ -16,6 +16,12 @@ namespace ServiceStack.Azure.Messaging
     {
         private readonly Dictionary<string, MessageReceiver> sbReceivers = new Dictionary<string, MessageReceiver>();
         protected readonly ServiceBusMqMessageFactory parentFactory;
+        
+#if NETSTANDARD2_0
+        public Action<Microsoft.Azure.ServiceBus.Message,IMessage> PublishMessageFilter { get; set; }
+#else
+        public Action<BrokeredMessage,IMessage> PublishMessageFilter { get; set; }
+#endif
 
         protected internal ServiceBusMqMessageProducer(ServiceBusMqMessageFactory parentFactory)
         {
@@ -60,19 +66,33 @@ namespace ServiceStack.Azure.Messaging
             {
                 var msgBody = JsonSerializer.SerializeToString(message, typeof(IMessage));
 #if NETSTANDARD2_0
-                var msg = new Microsoft.Azure.ServiceBus.Message()
+                var msg = new Microsoft.Azure.ServiceBus.Message
                 {
                     Body = msgBody.ToUtf8Bytes(),
                     MessageId = message.Id.ToString()
                 };
-                sbClient.SendAsync(msg).Wait();
+                sbClient.SendAsync(ApplyFilter(msg, message)).Wait();
 #else
                 var msg = new BrokeredMessage(msgBody) { MessageId = message.Id.ToString() };
 
-                sbClient.Send(msg);
+                sbClient.Send(ApplyFilter(msg, message));
 #endif
             }
         }
+
+#if NETSTANDARD2_0
+        public Microsoft.Azure.ServiceBus.Message ApplyFilter(Microsoft.Azure.ServiceBus.Message azureMessage, IMessage message)
+        {
+            PublishMessageFilter?.Invoke(azureMessage, message);
+            return azureMessage;
+        }
+#else
+        public BrokeredMessage ApplyFilter(BrokeredMessage azureMessage, IMessage message)
+        {
+            PublishMessageFilter?.Invoke(azureMessage, message);
+            return azureMessage;
+        }
+#endif
 
 #if NETSTANDARD2_0
         protected MessageReceiver GetOrCreateMessageReceiver(string queueName)

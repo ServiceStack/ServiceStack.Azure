@@ -22,10 +22,12 @@ namespace ServiceStack.Azure.Messaging
 
         public ServiceBusMqServer(string connectionString)
         {
-            MessageFactory = new ServiceBusMqMessageFactory(this, connectionString);
+            messageFactory = new ServiceBusMqMessageFactory(this, connectionString);
         }
 
-        public IMessageFactory MessageFactory { get; }
+        private readonly ServiceBusMqMessageFactory messageFactory;
+
+        public IMessageFactory MessageFactory => messageFactory;
 
         public Func<string, IOneWayClient> ReplyClientFactory { get; set; }
 
@@ -80,6 +82,21 @@ namespace ServiceStack.Azure.Messaging
         /// </summary>
         public bool DisableNotifyMessages { get; set; }
 
+        
+#if NETSTANDARD2_0
+        public Action<Microsoft.Azure.ServiceBus.Message,IMessage> PublishMessageFilter 
+        {
+            get => messageFactory.PublishMessageFilter;
+            set => messageFactory.PublishMessageFilter = value;
+        }
+#else
+        public Action<Microsoft.ServiceBus.Messaging.BrokeredMessage,IMessage> PublishMessageFilter 
+        {
+            get => messageFactory.PublishMessageFilter;
+            set => messageFactory.PublishMessageFilter = value;
+        }
+#endif
+        
         public void Dispose()
         {
             (MessageFactory as ServiceBusMqMessageFactory)?.StopQueues();

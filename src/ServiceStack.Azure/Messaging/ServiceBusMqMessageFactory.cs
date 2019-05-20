@@ -3,10 +3,10 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+
 #if NETSTANDARD2_0
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Management;
-
 #else
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
@@ -17,6 +17,13 @@ namespace ServiceStack.Azure.Messaging
 {
     public class ServiceBusMqMessageFactory : IMessageFactory
     {
+#if NETSTANDARD2_0
+        public Action<Microsoft.Azure.ServiceBus.Message,IMessage> PublishMessageFilter { get; set; }
+#else
+        public Action<BrokeredMessage,IMessage> PublishMessageFilter { get; set; }
+#endif
+
+        
         protected internal readonly string address;
 #if !NETSTANDARD2_0
         protected internal readonly NamespaceManager namespaceManager;
@@ -46,7 +53,9 @@ namespace ServiceStack.Azure.Messaging
 
         public IMessageProducer CreateMessageProducer()
         {
-            return new ServiceBusMqMessageProducer(this);
+            return new ServiceBusMqMessageProducer(this) {
+                PublishMessageFilter = PublishMessageFilter,
+            };
         }
 
         public IMessageQueueClient CreateMessageQueueClient()
