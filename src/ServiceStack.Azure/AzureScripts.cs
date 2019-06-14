@@ -13,10 +13,10 @@ namespace ServiceStack.Azure
     
     public class AzureScripts : ScriptMethods
     {
-        public AzureBlobVirtualFiles azureBlobVirtualFiles(string connectionString, string containerName) => 
+        public AzureBlobVirtualFiles vfsAzureBlob(string connectionString, string containerName) => 
             new AzureBlobVirtualFiles(connectionString, containerName);
 
-        public AzureAppendBlobVirtualFiles azureAppendBlobVirtualFiles(string connectionString, string containerName) => 
+        public AzureAppendBlobVirtualFiles vfsAzureAppendBlob(string connectionString, string containerName) => 
             new AzureAppendBlobVirtualFiles(connectionString, containerName);
     }
 }
