@@ -305,6 +305,11 @@ namespace ServiceStack.Azure.Storage
                 .Select(q => q.RowKey);
         }
 
+        public void RemoveExpiredEntries()
+        {
+            GetKeysByPattern("*").Each(x => GetEntry(x));
+        }
+
         public IEnumerable<string> GetKeysByRegex(string regex)
         {
             // Very inefficient - query all keys and do client-side filter
@@ -312,7 +317,7 @@ namespace ServiceStack.Azure.Storage
 
             var re = new Regex(regex, RegexOptions.Compiled | RegexOptions.Singleline);
 
-            return table.ExecuteQuery<TableCacheEntry>(query)
+            return table.ExecuteQuery(query)
                 .Where(q => re.IsMatch(q.RowKey))
                 .Select(q => q.RowKey);
         }
