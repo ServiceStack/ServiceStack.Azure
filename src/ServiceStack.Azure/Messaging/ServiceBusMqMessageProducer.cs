@@ -6,7 +6,6 @@ using ServiceStack.Text;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Core;
 #else
-using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 #endif
 

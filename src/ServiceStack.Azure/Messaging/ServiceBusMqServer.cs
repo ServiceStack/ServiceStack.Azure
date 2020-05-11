@@ -4,6 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+#if NETSTANDARD2_0
+using Microsoft.Azure.ServiceBus.Management;
+#else
+using Microsoft.ServiceBus;
+#endif
 
 namespace ServiceStack.Azure.Messaging
 {
@@ -42,13 +47,28 @@ namespace ServiceStack.Azure.Messaging
         /// Must be thread-safe.
         /// </summary>
         public Func<object, object> ResponseFilter { get; set; }
+        
+        
+#if NETSTANDARD2_0
+        /// <summary>
+        /// Exposes the <see cref="Microsoft.Azure.ServicBus.Management.ManagementClient"/> which can be used to perform
+        /// management operations on ServiceBus entities.
+        /// </summary>
+        public ManagementClient ManagementClient => messageFactory.managementClient;
+#else
+        /// <summary>
+        /// Exposes the <see cref="Microsoft.ServiceBus.NamespaceManager"/> which can be used in managing entities,
+        /// such as queues, topics, subscriptions, and rules, in your service namespace.
+        /// </summary>
+        public NamespaceManager NamespaceManager => messageFactory.namespaceManager;
+#endif
 
         private readonly Dictionary<Type, IMessageHandlerFactory> handlerMap = new Dictionary<Type, IMessageHandlerFactory>();
 
         protected internal Dictionary<Type, IMessageHandlerFactory> HandlerMap => handlerMap;
 
-        //private readonly Dictionary<Type, int> handlerThreadCountMap
-        //    = new Dictionary<Type, int>();
+        private readonly Dictionary<Type, int> handlerThreadCountMap
+            = new Dictionary<Type, int>();
 
         public List<Type> RegisteredTypes => handlerMap.Keys.ToList();
 
@@ -140,7 +160,7 @@ namespace ServiceStack.Azure.Messaging
             }
 
             handlerMap[typeof(T)] = CreateMessageHandlerFactory(processMessageFn, processExceptionEx);
-            //handlerThreadCountMap[typeof(T)] = noOfThreads;
+            handlerThreadCountMap[typeof(T)] = noOfThreads;
 
             LicenseUtils.AssertValidUsage(LicenseFeature.ServiceStack, QuotaType.Operations, handlerMap.Count);
         }
@@ -160,7 +180,7 @@ namespace ServiceStack.Azure.Messaging
         public void Start()
         {
             // Create the queues (if they don't exist) and start the listeners
-            ((ServiceBusMqMessageFactory)MessageFactory).StartQueues(this.handlerMap);
+            ((ServiceBusMqMessageFactory)MessageFactory).StartQueues(this.handlerMap, this.handlerThreadCountMap);
         }
 
         public void Stop()
