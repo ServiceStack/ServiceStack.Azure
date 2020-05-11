@@ -67,7 +67,7 @@ namespace ServiceStack.Azure.Messaging
         {
         }
 
-        protected internal void StartQueues(Dictionary<Type, IMessageHandlerFactory> handlerMap)
+        protected internal void StartQueues(Dictionary<Type, IMessageHandlerFactory> handlerMap, Dictionary<Type, int> handlerThreadCountMap)
         {
             // Create queues for each registered type
             this.handlerMap = handlerMap;
@@ -99,12 +99,12 @@ namespace ServiceStack.Azure.Messaging
                 }
 
                 var mqNames = new QueueNames(type);
-                AddQueueHandler(mqNames.In);
-                AddQueueHandler(mqNames.Priority);
+                AddQueueHandler(mqNames.In, handlerThreadCountMap[type]);
+                AddQueueHandler(mqNames.Priority, handlerThreadCountMap[type]);
             }
         }
 
-        private void AddQueueHandler(string queueName)
+        private void AddQueueHandler(string queueName, int threadCount=1)
         {
             queueName = queueName.SafeQueueName();
 
@@ -115,7 +115,7 @@ namespace ServiceStack.Azure.Messaging
                 new MessageHandlerOptions(
                     (eventArgs) => Task.CompletedTask)
                 {
-                    MaxConcurrentCalls = 1,
+                    MaxConcurrentCalls = threadCount,
                     AutoComplete = false
                 });
 #else
@@ -127,7 +127,7 @@ namespace ServiceStack.Azure.Messaging
 
                 AutoComplete = false,
                 //AutoRenewTimeout = new TimeSpan()
-                MaxConcurrentCalls = 1
+                MaxConcurrentCalls = threadCount
             };
 
             var sbWorker = new ServiceBusMqWorker(this, CreateMessageQueueClient(), queueName, sbClient);
