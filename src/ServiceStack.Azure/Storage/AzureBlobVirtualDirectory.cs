@@ -48,7 +48,9 @@ namespace ServiceStack.Azure.Storage
             }
         }
 
-        public override DateTime LastModified => throw new NotImplementedException();
+        // Azure CloudBlobDirectories can only exist if there is a file within that folder
+        // therefore we can use the last modified date of the files to determine the last modified date
+        public override DateTime LastModified => Files?.Max(f => f.LastModified) ?? DateTime.MinValue;
 
         public override IEnumerable<IVirtualFile> Files => PathProvider.GetImmediateFiles(this.DirPath);
 
@@ -66,10 +68,7 @@ namespace ServiceStack.Azure.Storage
 
         public override string VirtualPath => DirPath;
 
-        public override IEnumerator<IVirtualNode> GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+        public override IEnumerator<IVirtualNode> GetEnumerator() => throw new NotImplementedException();
 
         protected override IVirtualFile GetFileFromBackingDirectoryOrDefault(string fileName)
         {
@@ -92,23 +91,21 @@ namespace ServiceStack.Azure.Storage
             return ret;
         }
 
-        protected override IVirtualDirectory GetDirectoryFromBackingDirectoryOrDefault(string directoryName)
-        {
-            return new AzureBlobVirtualDirectory(this.PathProvider, PathProvider.SanitizePath(DirPath.CombineWith(directoryName)));
-        }
-        
+        protected override IVirtualDirectory GetDirectoryFromBackingDirectoryOrDefault(string directoryName) =>
+            new AzureBlobVirtualDirectory(this.PathProvider, PathProvider.SanitizePath(DirPath.CombineWith(directoryName)));
+
         public override IEnumerable<IVirtualFile> GetAllMatchingFiles(string globPattern, int maxDepth = int.MaxValue)
         {
             if (IsRoot)
             {
-                return PathProvider.EnumerateFiles().Where(x => 
-                    (x.DirPath == null || x.DirPath.CountOccurrencesOf('/') < maxDepth-1)
+                return PathProvider.EnumerateFiles().Where(x =>
+                    (x.DirPath == null || x.DirPath.CountOccurrencesOf('/') < maxDepth - 1)
                     && x.Name.Glob(globPattern));
             }
-            
-            return PathProvider.EnumerateFiles(DirPath).Where(x => 
+
+            return PathProvider.EnumerateFiles(DirPath).Where(x =>
                 x.DirPath != null
-                && x.DirPath.CountOccurrencesOf('/') < maxDepth-1
+                && x.DirPath.CountOccurrencesOf('/') < maxDepth - 1
                 && x.DirPath.StartsWith(DirPath)
                 && x.Name.Glob(globPattern));
         }
