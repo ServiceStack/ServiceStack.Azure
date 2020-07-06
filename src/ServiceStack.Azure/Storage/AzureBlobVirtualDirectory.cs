@@ -50,7 +50,7 @@ namespace ServiceStack.Azure.Storage
 
         // Azure CloudBlobDirectories can only exist if there is a file within that folder
         // therefore we can use the last modified date of the files to determine the last modified date
-        public override DateTime LastModified => Files?.Max(f => f.LastModified) ?? DateTime.MinValue;
+        public override DateTime LastModified => (Files != null && Files.Any()) ? Files.Max(f => f.LastModified) : DateTime.MinValue;
 
         public override IEnumerable<IVirtualFile> Files => PathProvider.GetImmediateFiles(this.DirPath);
 
