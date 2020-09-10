@@ -65,31 +65,13 @@ namespace ServiceStack.Azure.Storage
         {
             return AtomicIncDecAsync(key, amount * -1, token);
         }
-        
-        public static async Task RetryUntilTrueAsync(Func<Task<bool>> action, TimeSpan? timeOut=null)
-        {
-            var i = 0;
-            var firstAttempt = DateTime.UtcNow;
-
-            while (timeOut == null || DateTime.UtcNow - firstAttempt < timeOut.Value)
-            {
-                i++;
-                if (await action())
-                {
-                    return;
-                }
-                await ExecUtils.DelayBackOffMultiplierAsync(i);
-            }
-
-            throw new TimeoutException($"Exceeded timeout of {timeOut.Value}");
-        }
 
         internal async Task<long> AtomicIncDecAsync(string key, long amount, CancellationToken token=default)
         {
             long count = 0;
             bool updated = false;
 
-            await RetryUntilTrueAsync(async () =>
+            await ExecUtils.RetryUntilTrueAsync(async () =>
             {
                 var entry = await GetEntryAsync(key, token);
 
@@ -103,7 +85,7 @@ namespace ServiceStack.Azure.Storage
                     }
                     catch (StorageException ex)
                     {
-                        if (!ex.InnerException.HasStatus(HttpStatusCode.Conflict))
+                        if (!ex.HasStatus(HttpStatusCode.Conflict))
                             throw;
                     }
                 }
@@ -119,7 +101,7 @@ namespace ServiceStack.Azure.Storage
                     }
                     catch (StorageException ex)
                     {
-                        if (!ex.InnerException.HasStatus(HttpStatusCode.PreconditionFailed))
+                        if (!ex.HasStatus(HttpStatusCode.PreconditionFailed))
                             throw;
                     }
                 }
@@ -146,7 +128,7 @@ namespace ServiceStack.Azure.Storage
             return default;
         }
 
-        internal async Task<TableCacheEntry> GetEntryAsync(string key, CancellationToken token=default)
+        private async Task<TableCacheEntry> GetEntryAsync(string key, CancellationToken token=default)
         {
             var entry = await TryGetValueAsync(key, token); 
             if (entry != null)

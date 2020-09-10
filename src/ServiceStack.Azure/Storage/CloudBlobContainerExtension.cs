@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -84,17 +85,17 @@ namespace ServiceStack.Azure.Storage
 
         public static bool Exists(this CloudBlob blob)
         {
-            return blob.ExistsAsync().Result;
+            return blob.ExistsAsync().GetResult();
         }
 
         public static TableResult Execute(this CloudTable table, TableOperation op)
         {
-            return table.ExecuteAsync(op).Result;
+            return table.ExecuteAsync(op).GetResult();
         }
 
         public static bool CreateIfNotExists(this CloudTable table)
         {
-            return table.CreateIfNotExistsAsync().Result;
+            return table.CreateIfNotExistsAsync().GetResult();
         }
 
         public static IEnumerable<TElement> ExecuteQuery<TElement>(this CloudTable table, TableQuery<TElement> query) where TElement : ITableEntity, new()
@@ -104,7 +105,7 @@ namespace ServiceStack.Azure.Storage
 
             do
             {
-                var result = table.ExecuteQuerySegmentedAsync(query, continuationToken).Result;
+                var result = table.ExecuteQuerySegmentedAsync(query, continuationToken).GetResult();
                 continuationToken = result.ContinuationToken;
                 elements.AddRange(result.Results);
             } while (continuationToken != null);
@@ -140,6 +141,15 @@ namespace ServiceStack.Azure.Storage
         public static Task<TableResult> ExecuteAsync(this CloudTable table, TableOperation operation, CancellationToken token)
         {
             return table.ExecuteAsync(operation, requestOptions:null, operationContext:null, token);
+        }
+
+        public static bool HasStatus(this StorageException ex, HttpStatusCode code)
+        {
+            if (ex.RequestInformation != null)
+            {
+                return ex.RequestInformation.HttpStatusCode == (int) code;
+            }
+            return (ex.InnerException ?? ex).HasStatus(code);
         }
         
     }

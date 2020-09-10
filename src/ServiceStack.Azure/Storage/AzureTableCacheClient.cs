@@ -125,7 +125,7 @@ namespace ServiceStack.Azure.Storage
                     }
                     catch (StorageException ex)
                     {
-                        if (!ex.InnerException.HasStatus(HttpStatusCode.Conflict))
+                        if (!ex.HasStatus(HttpStatusCode.Conflict))
                             throw;
                     }
                 }
@@ -141,7 +141,7 @@ namespace ServiceStack.Azure.Storage
                     }
                     catch (StorageException ex)
                     {
-                        if (!ex.InnerException.HasStatus(HttpStatusCode.PreconditionFailed))
+                        if (!ex.HasStatus(HttpStatusCode.PreconditionFailed))
                             throw;
                     }
                 }
