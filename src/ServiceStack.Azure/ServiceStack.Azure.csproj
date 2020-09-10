@@ -3,7 +3,7 @@
   <PropertyGroup>
     <PackageId>ServiceStack.Azure</PackageId>
     <AssemblyName>ServiceStack.Azure</AssemblyName>
-    <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
     <Title>ServiceStack integration for Azure Services</Title>
     <PackageDescription>
       ServiceStack integration for Azure Services in Azure and Windows ServiceBus, 
@@ -16,9 +16,10 @@
   <ItemGroup>
     <PackageReference Include="ServiceStack" Version="$(Version)" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
+    <PackageReference Include="System.Linq.Async" Version="4.1.1" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <PackageReference Include="WindowsAzure.ServiceBus" Version="6.0.1" />
     <PackageReference Include="Microsoft.WindowsAzure.ConfigurationManager" Version="3.2.3" />
   </ItemGroup>

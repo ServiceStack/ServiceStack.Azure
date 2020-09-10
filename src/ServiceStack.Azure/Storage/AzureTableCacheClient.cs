@@ -16,7 +16,7 @@ using System.Threading;
 
 namespace ServiceStack.Azure.Storage
 {
-    public class AzureTableCacheClient : AdapterBase, ICacheClientExtended, IRemoveByPattern
+    public partial class AzureTableCacheClient : AdapterBase, ICacheClientExtended, IRemoveByPattern
     {
         TableCacheEntry CreateTableEntry(string rowKey, string data = null,
             DateTime? created = null, DateTime? expires = null)
@@ -220,22 +220,20 @@ namespace ServiceStack.Azure.Storage
 
         public bool Replace<T>(string key, T value)
         {
-            return Replace(key, value);
+            return ReplaceInternal(key, Serialize(value));
         }
 
         public bool Replace<T>(string key, T value, TimeSpan expiresIn)
         {
-            var sVal = Serialize<T>(value);
-            return ReplaceInternal(key, sVal, DateTime.UtcNow.Add(expiresIn));
+            return ReplaceInternal(key, Serialize(value), DateTime.UtcNow.Add(expiresIn));
         }
 
         public bool Replace<T>(string key, T value, DateTime expiresAt)
         {
-            var sVal = Serialize<T>(value);
-            return ReplaceInternal(key, sVal, expiresAt);
+            return ReplaceInternal(key, Serialize(value), expiresAt);
         }
 
-        internal bool ReplaceInternal(string key, string value, DateTime? expiresAt = null)
+        private bool ReplaceInternal(string key, string value, DateTime? expiresAt = null)
         {
             if (TryGetValue(key, out var entry))
             {
@@ -249,9 +247,9 @@ namespace ServiceStack.Azure.Storage
 
         public bool Set<T>(string key, T value)
         {
-            var sVal = Serialize<T>(value);
+            var sVal = Serialize(value);
             var entry = CreateTableEntry(key, sVal);
-            return SetInternal(key, entry);
+            return SetInternal(entry);
         }
 
         public bool Set<T>(string key, T value, TimeSpan expiresIn)
@@ -262,12 +260,11 @@ namespace ServiceStack.Azure.Storage
         public bool Set<T>(string key, T value, DateTime expiresAt)
         {
             var sVal = Serialize<T>(value);
-
             var entry = CreateTableEntry(key, sVal, null, expiresAt);
-            return SetInternal(key, entry);
+            return SetInternal(entry);
         }
 
-        internal bool SetInternal(string key, TableCacheEntry entry)
+        internal bool SetInternal(TableCacheEntry entry)
         {
             var op = TableOperation.InsertOrReplace(entry);
             var result = table.Execute(op);
@@ -307,7 +304,8 @@ namespace ServiceStack.Azure.Storage
 
         public void RemoveExpiredEntries()
         {
-            GetKeysByPattern("*").Each(x => GetEntry(x));
+            GetKeysByPattern("*").Each(x =>
+                GetEntry(x)); // removes if expired
         }
 
         public IEnumerable<string> GetKeysByRegex(string regex)

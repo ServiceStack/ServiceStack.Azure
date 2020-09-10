@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Blob.Protocol;
 using Microsoft.WindowsAzure.Storage;
@@ -12,7 +14,6 @@ namespace ServiceStack.Azure.Storage
     public static class CloudBlobContainerExtension
     {
 #if NETSTANDARD2_0
-
         public static IEnumerable<IListBlobItem> ListBlobs(this CloudBlobContainer container, string prefix = null,
             bool useFlatBlobListing = false)
         {
@@ -111,5 +112,35 @@ namespace ServiceStack.Azure.Storage
             return elements;
         }
 #endif
+        
+        public static async Task<IList<T>> ExecuteQueryAsync<T>(this CloudTable table, TableQuery<T> query, CancellationToken token = default) 
+            where T : ITableEntity, new()
+        {
+            var runningQuery = new TableQuery<T> {
+                FilterString = query.FilterString,
+                SelectColumns = query.SelectColumns
+            };
+
+            var items = new List<T>();
+            TableContinuationToken tct = null;
+
+            do
+            {
+                runningQuery.TakeCount = query.TakeCount - items.Count;
+
+                var seg = await table.ExecuteQuerySegmentedAsync(runningQuery, tct);
+                tct = seg.ContinuationToken;
+                items.AddRange(seg);
+
+            } while (tct != null && !token.IsCancellationRequested && (query.TakeCount == null || items.Count < query.TakeCount.Value));
+
+            return items;
+        }
+
+        public static Task<TableResult> ExecuteAsync(this CloudTable table, TableOperation operation, CancellationToken token)
+        {
+            return table.ExecuteAsync(operation, requestOptions:null, operationContext:null, token);
+        }
+        
     }
 }
