@@ -129,7 +129,7 @@ namespace ServiceStack.Azure.Storage
             {
                 runningQuery.TakeCount = query.TakeCount - items.Count;
 
-                var seg = await table.ExecuteQuerySegmentedAsync(runningQuery, tct);
+                var seg = await table.ExecuteQuerySegmentedAsync(runningQuery, tct, token);
                 tct = seg.ContinuationToken;
                 items.AddRange(seg);
 
