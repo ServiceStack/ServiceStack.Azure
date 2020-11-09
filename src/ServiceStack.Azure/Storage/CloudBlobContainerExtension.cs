@@ -129,7 +129,8 @@ namespace ServiceStack.Azure.Storage
             {
                 runningQuery.TakeCount = query.TakeCount - items.Count;
 
-                var seg = await table.ExecuteQuerySegmentedAsync(runningQuery, tct, token);
+                // ReSharper disable once MethodSupportsCancellation
+                var seg = await table.ExecuteQuerySegmentedAsync(runningQuery, tct);
                 tct = seg.ContinuationToken;
                 items.AddRange(seg);
 
