@@ -47,7 +47,7 @@ public class AppHost : AppHostBase
         //Azure container which hold your files. If it does not exist it will be automatically created.
         var containerName = "myazurecontainer";
 
-        VirtualFiles = new AzureBlobVirtualFiles(connectionString, containerName);
+        VirtualFiles = new AzureBlobVirtualFiles(azureBlobConnectionString, containerName);
         AddVirtualFileSources.Add(VirtualFiles);
     }
 }
