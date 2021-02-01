@@ -86,7 +86,7 @@ namespace ServiceStack.Azure.Messaging
             string lockToken = null;
 
 #if NETSTANDARD2_0
-            var msg = sbClient.ReceiveAsync(timeout).Result;
+            var msg = Task.Run(() => sbClient.ReceiveAsync(timeout)).GetAwaiter().GetResult();
             if (msg != null)
              lockToken = msg.SystemProperties.LockToken;
 #else
