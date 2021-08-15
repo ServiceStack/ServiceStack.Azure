@@ -15,12 +15,12 @@
   <ItemGroup>
     <PackageReference Include="ServiceStack.Core" Version="$(Version)" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
-    <PackageReference Include="System.Linq.Async" Version="4.1.1" />
+    <PackageReference Include="System.Linq.Async" Version="5.0.0" />
   </ItemGroup>
 
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="5.1.2" />
+    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="5.1.3" />
     <PackageReference Include="Microsoft.Azure.Management.ServiceBus" Version="2.1.0" />
   </ItemGroup>
 
