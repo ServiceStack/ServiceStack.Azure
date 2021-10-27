@@ -4,7 +4,7 @@
     <PackageId>ServiceStack.Azure.Core</PackageId>
     <AssemblyName>ServiceStack.Azure</AssemblyName>
     <RootNamespace>ServiceStack.Azure</RootNamespace>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
     <Title>ServiceStack.Azure .NET Standard 2.0</Title>
     <PackageDescription>
       .NET Standard 2.0 version of ServiceStack.Azure
@@ -18,8 +18,12 @@
     <PackageReference Include="System.Linq.Async" Version="5.0.0" />
   </ItemGroup>
 
-
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="5.1.3" />
+    <PackageReference Include="Microsoft.Azure.Management.ServiceBus" Version="2.1.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <PackageReference Include="Microsoft.Azure.ServiceBus" Version="5.1.3" />
     <PackageReference Include="Microsoft.Azure.Management.ServiceBus" Version="2.1.0" />
   </ItemGroup>

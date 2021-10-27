@@ -13,7 +13,7 @@ namespace ServiceStack.Azure.Messaging
     public static class QueueClientExtensions
     {
 
-#if NETSTANDARD2_0
+#if NETSTANDARD
         static readonly PropertyInfo InnerReceiverProperty =
             typeof(Microsoft.Azure.ServiceBus.QueueClient).GetProperties(BindingFlags.NonPublic | BindingFlags.Instance).First(x => x.Name == "InnerReceiver");
 

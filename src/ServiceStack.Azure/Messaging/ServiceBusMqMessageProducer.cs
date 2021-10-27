@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using ServiceStack.Messaging;
 using ServiceStack.Text;
-#if NETSTANDARD2_0
+#if NETSTANDARD
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Core;
 #else
@@ -16,7 +16,7 @@ namespace ServiceStack.Azure.Messaging
         private readonly Dictionary<string, MessageReceiver> sbReceivers = new Dictionary<string, MessageReceiver>();
         protected readonly ServiceBusMqMessageFactory parentFactory;
         
-#if NETSTANDARD2_0
+#if NETSTANDARD
         public Action<Microsoft.Azure.ServiceBus.Message,IMessage> PublishMessageFilter { get; set; }
 #else
         public Action<BrokeredMessage,IMessage> PublishMessageFilter { get; set; }
@@ -64,7 +64,7 @@ namespace ServiceStack.Azure.Messaging
             using (JsConfig.With(new Text.Config { IncludeTypeInfo = true }))
             {
                 var msgBody = JsonSerializer.SerializeToString(message, typeof(IMessage));
-#if NETSTANDARD2_0
+#if NETSTANDARD
                 var msg = new Microsoft.Azure.ServiceBus.Message
                 {
                     Body = msgBody.ToUtf8Bytes(),
@@ -79,7 +79,7 @@ namespace ServiceStack.Azure.Messaging
             }
         }
 
-#if NETSTANDARD2_0
+#if NETSTANDARD
         public Microsoft.Azure.ServiceBus.Message ApplyFilter(Microsoft.Azure.ServiceBus.Message azureMessage, IMessage message)
         {
             PublishMessageFilter?.Invoke(azureMessage, message);
@@ -93,7 +93,7 @@ namespace ServiceStack.Azure.Messaging
         }
 #endif
 
-#if NETSTANDARD2_0
+#if NETSTANDARD
         protected MessageReceiver GetOrCreateMessageReceiver(string queueName)
         {
             queueName = queueName.SafeQueueName();

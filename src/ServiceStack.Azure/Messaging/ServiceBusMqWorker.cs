@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-#if NETSTANDARD2_0
+#if NETSTANDARD
 using Microsoft.Azure.ServiceBus;
 #else
 using Microsoft.ServiceBus.Messaging;
@@ -33,7 +33,7 @@ namespace ServiceStack.Azure.Messaging
             this.sbClient = sbClient;
         }
 
-#if NETSTANDARD2_0
+#if NETSTANDARD
         public async Task HandleMessageAsync(Microsoft.Azure.ServiceBus.Message msg, CancellationToken token)
         {
             var strMessage = msg.Body.FromMessageBody();

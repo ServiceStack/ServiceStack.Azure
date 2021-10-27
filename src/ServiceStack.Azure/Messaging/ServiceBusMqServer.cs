@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-#if NETSTANDARD2_0
+#if NETSTANDARD
 using Microsoft.Azure.ServiceBus.Management;
 #else
 using Microsoft.ServiceBus;
@@ -49,7 +49,7 @@ namespace ServiceStack.Azure.Messaging
         public Func<object, object> ResponseFilter { get; set; }
         
         
-#if NETSTANDARD2_0
+#if NETSTANDARD
         /// <summary>
         /// Exposes the <see cref="Microsoft.Azure.ServicBus.Management.ManagementClient"/> which can be used to perform
         /// management operations on ServiceBus entities.
@@ -103,7 +103,7 @@ namespace ServiceStack.Azure.Messaging
         public bool DisableNotifyMessages { get; set; }
 
         
-#if NETSTANDARD2_0
+#if NETSTANDARD
         public Action<Microsoft.Azure.ServiceBus.Message,IMessage> PublishMessageFilter 
         {
             get => messageFactory.PublishMessageFilter;
