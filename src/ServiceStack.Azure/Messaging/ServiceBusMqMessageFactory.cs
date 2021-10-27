@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 
-#if NETSTANDARD
+#if NETCORE
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Management;
 #else
@@ -17,7 +17,7 @@ namespace ServiceStack.Azure.Messaging
 {
     public class ServiceBusMqMessageFactory : IMessageFactory
     {
-#if NETSTANDARD
+#if NETCORE
         public Action<Microsoft.Azure.ServiceBus.Message,IMessage> PublishMessageFilter { get; set; }
 #else
         public Action<BrokeredMessage,IMessage> PublishMessageFilter { get; set; }
@@ -25,7 +25,7 @@ namespace ServiceStack.Azure.Messaging
 
         
         protected internal readonly string address;
-#if !NETSTANDARD
+#if !NETCORE
         protected internal readonly NamespaceManager namespaceManager;
 #else
         protected internal readonly ManagementClient managementClient;
@@ -44,7 +44,7 @@ namespace ServiceStack.Azure.Messaging
         {
             this.MqServer = mqServer;
             this.address = address;
-#if !NETSTANDARD
+#if !NETCORE
             this.namespaceManager = NamespaceManager.CreateFromConnectionString(address);
 #else
             this.managementClient = new ManagementClient(address);
@@ -86,7 +86,7 @@ namespace ServiceStack.Azure.Messaging
                         queueMap.Add(queueName, type);
 
                     var mqDesc = new QueueDescription(queueName);
-#if !NETSTANDARD
+#if !NETCORE
                     if (!namespaceManager.QueueExists(queueName))
                         namespaceManager.CreateQueue(mqDesc);
 #else
@@ -108,7 +108,7 @@ namespace ServiceStack.Azure.Messaging
         {
             queueName = queueName.SafeQueueName();
 
-#if NETSTANDARD
+#if NETCORE
             var sbClient = new QueueClient(address, queueName, ReceiveMode.PeekLock);
             var sbWorker = new ServiceBusMqWorker(this, CreateMessageQueueClient(), queueName, sbClient);
             sbClient.RegisterMessageHandler(sbWorker.HandleMessageAsync,
@@ -138,7 +138,7 @@ namespace ServiceStack.Azure.Messaging
 
         protected internal void StopQueues()
         {
-#if NETSTANDARD
+#if NETCORE
             sbClients.Each(async kvp => await kvp.Value.CloseAsync());
 #else
             sbClients.Each(kvp => kvp.Value.Close());
@@ -155,7 +155,7 @@ namespace ServiceStack.Azure.Messaging
 
             var qd = new QueueDescription(queueName);
 
-#if !NETSTANDARD
+#if !NETCORE
 // Create queue on ServiceBus namespace if it doesn't exist
             if (!namespaceManager.QueueExists(queueName))
             {

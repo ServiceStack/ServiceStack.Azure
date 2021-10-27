@@ -14,7 +14,7 @@ namespace ServiceStack.Azure.Storage
 {
     public static class CloudBlobContainerExtension
     {
-#if NETSTANDARD
+#if NETCORE
         public static IEnumerable<IListBlobItem> ListBlobs(this CloudBlobContainer container, string prefix = null,
             bool useFlatBlobListing = false)
         {
