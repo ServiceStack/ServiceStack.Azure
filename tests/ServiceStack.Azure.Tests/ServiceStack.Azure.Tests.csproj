@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net472;net6.0</TargetFrameworks>
     <DebugType>portable</DebugType>
     <AssemblyName>ServiceStack.Azure.Tests</AssemblyName>
     <OutputType>Library</OutputType>
@@ -19,9 +19,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\ServiceStack.Azure\ServiceStack.Azure.csproj" />
     <PackageReference Include="ServiceStack" Version="$(Version)" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
-    <PackageReference Include="NUnit" Version="3.11.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.1.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+    <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="System.Linq.Async" Version="5.0.0" />
   </ItemGroup>
@@ -29,7 +29,7 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <PackageReference Include="ServiceStack.Kestrel" Version="$(Version)" />
   </ItemGroup>
 
