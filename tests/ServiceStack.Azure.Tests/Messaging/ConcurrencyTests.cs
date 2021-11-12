@@ -35,7 +35,7 @@ namespace ServiceStack.Azure.Tests.Messaging
 
 		public AzureServiceBusMqServerConcurrencyTests()
 		{
-#if !NETCOREAPP3_1
+#if !NETCORE
 			NamespaceManager nm = NamespaceManager.CreateFromConnectionString(ConnectionString);
 			Parallel.ForEach(nm.GetQueues(), qd =>
 			{
@@ -56,7 +56,7 @@ namespace ServiceStack.Azure.Tests.Messaging
 			var timesCalled = 0;
 			using var mqHost = new ServiceBusMqServer(ConnectionString);
 			var queueNames = QueueNames<Wait>.AllQueueNames.Select(SafeQueueName).ToList();
-#if NETCOREAPP3_1
+#if NETCORE
 			queueNames.ForEach(q => mqHost.ManagementClient.DeleteQueueAsync(q).GetAwaiter().GetResult());
 #else
 			queueNames.ForEach(q => mqHost.NamespaceManager.DeleteQueue(q));
