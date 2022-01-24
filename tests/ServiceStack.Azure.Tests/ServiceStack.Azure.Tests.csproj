@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-<!--    <TargetFrameworks>net472;net6.0</TargetFrameworks>-->
-    <TargetFramework>net472</TargetFramework>
+    <TargetFrameworks>net472;net6.0</TargetFrameworks>
+    <DebugType>portable</DebugType>
     <AssemblyName>ServiceStack.Azure.Tests</AssemblyName>
     <OutputType>Library</OutputType>
     <PackageId>ServiceStack.Azure.Tests</PackageId>
